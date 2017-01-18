@@ -11,7 +11,7 @@ email: 418648118@qq.com
 description: 日常指南·群服公告
   
 baseurl: "" # the subpath of your site, e.g. /blog
-url: 
+url: 'http://rshock.github.io/'
 
 #sidebar
 default-image: webjeda-logo-big.jpg # If there is no featured image in a post then this image will be showed. Also on all pages this image will be showed. Use a 500x250 image.
