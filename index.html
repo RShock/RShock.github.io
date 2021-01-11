@@ -1,65 +1,430 @@
----
-layout: default
----
+<!doctype html>
+<html>
 
-<div class="home">
- 
-  
-    <div class="row pack">
+<head>
+	<meta http-equiv='Content-Type' content='text/html; charset=utf-8'>
+	<title>全境征才计算器</title>
+	<meta name='keywords' content='天下布魔'>
+    <meta name='description' content='咕咕咕'>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+	<!-- <link rel="stylesheet" href="style.css" /> -->
+	<style>
+		#center_box {
+			margin: 0 auto;
+			width: 90%;
+		}
 
-        {% for post in paginator.posts %}   
-            <div class="col-md-4 card">
-                 
-                <div class="panel panel-default">
-                  <div class="panel-body">
-                    <h3 class="panel-title pull-left">{{ post.title | truncate: 25 }}</h3><span class="post-meta pull-right"><small>{{ post.date | date: "%b %-d, %Y" }}</small></span>
-                  </div>
-                  {% if post.img %}
-                  <img width="100%" src="{{site.baseurl}}/images/{{post.img}}" alt="{{post.title}}">
-                  {% else %}
-                  <img width="100%" src="{{site.baseurl}}/images/webjeda-logo-big.jpg" alt="{{site.title}}">
-                  {% endif %}
-                  <div class="panel-body"><small>
-                    {{ post.excerpt | strip_html | strip_newlines | truncate: 160 }}</small>
-                    <a href="{{ post.url | prepend: site.baseurl }}" class="btn btn-primary btn-sm pull-right mt10">Read</a>
-                  </div>
-                </div>
-            </div>
+		button {
+			height: 70px;
+			font-size: 50px;
+			width: 32%;
+			border-radius: 20px;
+			margin: 6px 4px;
+			box-shadow: 0 1px rgb(98, 127, 140);
+			line-height: 100%;
+		}
+
+		.btn_normal {
+			color: rgb(80, 80, 109);
+			background-image: linear-gradient(rgb(255, 255, 255), rgb(240, 240, 240))
+		}
+
+		.btn_clicked {
+			color: white;
+			background-image: linear-gradient(rgb(82, 179, 222), rgb(74, 163, 209))
+		}
+
+		.btn_resetAllTags {
+			width: 100%;
+			color: white;
+			background-color: rgb(236, 91, 85)
+		}
+
+		#foobar {
+			font-size: 25px;
+		}
+
+		table {
+			width: 100%;
+			font-size: 30px;
+			border-radius: 25px;
+		}
+
+		thead {
+			background-color: #065279;
+			color: white;
+			font-size: 40px;
+		}
+
+		table tr:first-child th:first-child {
+			border-top-left-radius: 10px;
+		}
+
+		table tr:first-child th:last-child {
+			border-top-right-radius: 10px;
+		}
+
+		table tr:last-child td:first-child {
+			border-bottom-left-radius: 10px;
+		}
+
+		table tr:last-child td:last-child {
+			border-bottom-right-radius: 10px;
+		}
+
+		.pc-style {
+			width: 75%;
+			margin: 0 auto;
+		}
+	</style>
+	<script type="text/javascript">
+        var tags = [];
+        var ans = [];
+        window.onload = function () {
+            // 调整屏幕宽度
+            getDevice()
+            var arr = document.getElementsByClassName('btn_normal');
+            for (var i = 0; i < arr.length; i++) {
+                arr[i].className = 'btn_normal';
+                arr[i].onclick = function () {
+                    if (this.className == 'btn_normal') {
+                            this.className = 'btn_clicked';
+                            tags.push(this.innerHTML);
+                    } else {
+                        this.className = 'btn_normal';
+                        for (let i = 0; i < arr.length; i++) {
+                            if (tags[i] == this.innerHTML) {
+                                tags.splice(i, 1);
+                                break;
+                            }
+                        }
+                    }
+                    ans = [];
+                    searchChara([], 0);
+                    console.log(ans);
+                    sortAns();
+                    redrawTable();
+                    document.getElementById("foobar").style.display = "none";
+                }
+            }
+        }
+
+        function redrawTable() {
+            var tbody = document.getElementById('tbMain');
+            var trs = document.getElementsByTagName("tr");
+            for (var i = trs.length - 1; i > 0; i--) {
+                tbody.deleteRow(0);
+            }
+            for (var i = 0; i < ans.length; i++) {
+                var trow = getDataRow(ans[i]);
+                tbody.appendChild(trow);
+            }
+        }
+
+        function getDataRow(data) {
+            var row = document.createElement('tr');
+
+            var tagCell = document.createElement('td');
+            tagCell.innerHTML = data[0].tags;
+            row.appendChild(tagCell);
+
+            var nameCell = document.createElement('td');
+            var value = convertCharaDataToColorfulString(data);
+            nameCell.innerHTML = value;
+            row.appendChild(nameCell);
+
+            return row;
+        }
+
+        function convertCharaDataToColorfulString(data) {
+            var value = "";
+            for (var i = 0; i < data.length; i++) {
+                if (data[i].value[0].startsWith("3"))
+                    value += "<div style=\"color:#FFD700\">";
+                if (data[i].value[0].startsWith("2"))
+                    value += "<div style=\"color:#FF0000\">";
+                if (data[i].value[0].startsWith("1"))
+                    value += "<div style=\"color:#B0E0E6\">";
+                if (data[i].value[0].startsWith("0"))
+                    value += "<div style=\"color:#808080\">";
+                var data2 = "(" + data[i].value[1];
+                for (var j = 2; j < data[i].value.length; j++) {
+                    data2 += ", " + data[i].value[j];
+                }
+                value += data[i].value[0] + data2 + ")</div>"
+            }
+            return value;
+        }
+
+        function resetAllTags() {
+            console.log('resetAllTags');
+            var arr = document.getElementsByClassName('btn_clicked');
+            while (arr.length != 0) {
+                arr[0].className = 'btn_normal';
+            }
+            tags = [];
+            ans = [];
+            redrawTable();
+        }
+
+        function searchChara(choosedTags, p) {
+            if (choosedTags.length == 3 || p == tags.length) {
+                checkCharaIsMatch(choosedTags);
+                return;
+            }
+            choosedTags.push(tags[p]);
+            searchChara(choosedTags, p + 1);
+            choosedTags.pop();
+            searchChara(choosedTags, p + 1);
+        }
+
+        function checkCharaIsMatch(tags) {
+            // console.log(tags);
+            var tmpAns = []
+            dataset.forEach(function (value, key, arr) {
+                if (isContain(value, tags)) {
+                    var tmp = {}
+                    tmp.tags = [...tags];
+                    tmp.value = value;
+                    tmpAns.push(tmp);
+                }
+            })
+            if (tmpAns.length != 0) {
+                ans.push(tmpAns);
+            }
+        }
+
+        function isContain(arr1, arr2) {
+            if (arr2.length == 0) return false;
+            var isLV3 = arr2.includes("领袖");
+            var isLV2 = arr2.includes("精锐");
+            for (var i = arr2.length - 1; i >= 0; i--) {
+                if (!isLV3 && arr1.includes("领袖")) {
+                    return false;
+                }
+                if (!arr1.includes(arr2[i])) {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        function sortAns() {
+            ans.sort((a, b) => {
+                return countValue(b) - countValue(a);
+            })
+        }
+
+        function countValue(data) {
+            var minLV = data[data.length - 1].value[0].substr(0, 1);
+            var maxLV = data[0].value[0].substr(0, 1);
+            return minLV + maxLV + (100 - data.length);
+        }
+
+        var dataset = [
+            ["3☆魔王 巴尔",     "领袖", "火属性", "魔族", "中体型",        "攻击者", "爆发" ],
+            ["3☆魔王 撒旦",     "领袖", "暗属性", "魔族", "中体型",        "守护者", "生存力", "反击" ],
+            ["3☆精灵王 赛露西亚","领袖","风属性", "亚人", "中体型", "巨乳", "辅助者", "爆发" ],
+            ["3☆矮人王 兰儿",   "领袖", "水属性", "亚人", "小体型", "贫乳", "攻击者",  "爆发" ],
+            ["3☆法斯公主 露露",  "领袖", "风属性", "人类",                 "治疗者", "回复" ],
+            ["3☆魔王 伊布力斯",  "领袖", "光属性", "魔族",                "攻击者", "生存力", "回复"],
+            ["3☆KS-VIII 魔人偶","领袖"],
+            ["3☆圣米勒 天使长",  "领袖"],
+            
+            ["2☆魔管家 艾可",    "精锐", "暗属性", "魔族", "辅助者", "美乳",          "支援" ],
+            ["2☆圣骑士长 雷欧娜", "精锐", "水属性", "人类", "守护者", "美乳", "中体型", "生存力", "保护", "防御" ],
+            ["2☆神官长 菲欧菈",   "精锐", "光属性", "人类", "治疗者", "美乳", "中体型", "回复" ],
+            ["2☆女忍者 凛月",    "精锐", "风属性", "人类", "攻击者", "美乳", "小体型", "输出", "群体攻击", "爆发" ],
+            ["2☆剑圣 神无雪",     "精锐", "火属性", "亚人", "攻击者", "美乳", "中体型", "越战越强", "削弱" ],
+            ["2☆妖狐 静",        "精锐", "水属性", "美乳", "妨碍者", "亚人",  "小体型", "削弱" ],
+            ["2☆大将军 朱诺安",   "精锐", "暗属性", "人类", "攻击者", "巨乳", "中体型", "输出",  ],
+            ["2☆天才女军师 布兰妮","精锐", "光属性", "人类", "妨碍者", "美乳", "中体型", "群体攻击", "削弱", "爆发", "支援" ],
+            
+            ["1☆流浪魔法师 尤依", "士兵", "火属性", "攻击者", "人类", "巨乳", "小体型", "越战越强", "输出"],
+            ["1☆龙女 伊维斯",    "士兵", "火属性", "攻击者", "亚人", "贫乳", "小体型", "越战越强", "群体攻击", "输出"],
+            ["1☆猫妖 娜娜", "士兵", "风属性", "攻击者", "魔族", "贫乳", "小体型", "输出"],
+            ["1☆美人鱼 玛莲", "士兵", "水属性", "治疗者", "亚人", "美乳", "中体型", "回复"],
+            ["1☆犬人族 朵拉", "士兵", "风属性", "守护者", "亚人", "美乳", "保护", "生存力", "中体型"],
+            ["1☆双蛇军团护士长 艾琳", "士兵", "光属性", "治疗者", "人类", "巨乳", "中体型", "回复"],
+            ["1☆魅魔 撒芭丝", "士兵", "暗属性", "妨碍者", "魔族", "美乳", "干扰", "削弱", "中体型"],
+            ["1☆暗黑精灵 索拉卡", "士兵", "暗属性", "妨碍者", "亚人", "中体型", "削弱", "美乳"],
+            
+            ["0☆法斯帝国法师 佩托拉", "光属性", "攻击者", "人类", "贫乳", "中体型", "群体攻击", "输出", "士兵"],
+            ["0☆矮人战士 可儿", "水属性", "攻击者", "亚人", "贫乳", "小体型", "输出", "爆发", "士兵"],
+            ["0☆精灵射手 奥菈", "风属性", "攻击者", "亚人", "美乳", "中体型", "输出", "士兵"],
+            ["0☆魔族法师 玛努艾拉", "暗属性", "攻击者", "中体型", "魔族", "美乳", "输出", "士兵"],
+            ["0☆烈日国武士 桔梗", "火属性", "妨碍者", "人类", "美乳", "中体型", "削弱", "输出", "士兵"],
+            ["0☆蛇女 拉米亚", "火属性", "妨碍者", "美乳", "中体型", "削弱", "干扰", "士兵"],
+            ["0☆史莱姆娘 萝尔", "水属性", "妨碍者", "魔族", "美乳", "小体型", "削弱", "生存力", "士兵"],
+            ["0☆鸟身女妖 哈比", "风属性", "妨碍者", "魔族", "美乳", "小体型", "干扰", "士兵"],
+            ["0☆法斯帝国士兵 赛莲", "暗属性", "守护者", "人类", "美乳", "中体型", "保护", "防御", "士兵"],
+            ["0☆牛女 米诺", "风属性", "守护者", "亚人", "巨乳", "中体型", "干扰", "保护", "防御", "士兵"],
+            ["0☆魔族战士 芙蕾", "光属性", "守护者", "魔族", "美乳", "中体型", "保护", "士兵", "防御"],
+            ["0☆圣光骑士 玛蒂娜", "光属性", "守护者", "人类", "美乳", "中体型", "保护", "生存力", "防御", "士兵"],
+            ["0☆双蛇军团士兵 夏琳", "火属性", "守护者", "人类", "美乳", "中体型", "防御", "群体攻击", "保护", "士兵"],
+            ["0☆烈日国巫女 枫", "风属性", "治疗者", "人类", "美乳", "中体型", "回复", "越战越强", "士兵"],
+            ["0☆主神教团僧兵 克蕾雅", "光属性", "治疗者", "人类", "美乳", "中体型", "回复", "士兵"]
+        ]
         
-          {% endfor %}
+        function getDevice() {
+            var agent = navigator.userAgent.toLowerCase();
+            var result = {
+                device: function () {
+                    if (/windows/.test(agent)) {
+                        var $body = document.getElementById('body')
+                        $body.classList.add('pc-style');
+                        return 'windows pc';
+                    } else if (/iphone|ipod/.test(agent) && /mobile/.test(agent)) {
+                        return 'iphone';
+                    } else if (/ipad/.test(agent) && /mobile/.test(agent)) {
+                        return 'ipad';
+                    } else if (/android/.test(agent) && /mobile/.test(agent)) {
+                        return 'android';
+                    } else if (/linux/.test(agent)) {
+                        return 'linux pc';
+                    } else if (/mac/.test(agent)) {
+                        return 'mac';
+                    } else {
+                        return 'other';
+                    }
+                }(),
+            };
+            return result;
+        }
+    </script>
 
-    </div> 
-    
-<div class="row">
-    <div class="col-md-4">  </div>
-    <div class="col-md-4">
-        {% if paginator.total_pages > 1 %}
-        <ul class="pagination">
-          {% if paginator.previous_page %}
-            <li><a href="{{ paginator.previous_page_path | prepend: site.baseurl | replace: '//', '/' }}">&laquo; Prev</a></li>
-          {% else %}
-            <li><span>&laquo; Prev</span></li>
-          {% endif %}
+<body style="background:#F8F8FF"
+	id="body">
+	<div id="center_box">
+		<h1>全境征才计算器 Ver1.9</h1>
 
-          {% for page in (1..paginator.total_pages) %}
-            {% if page == paginator.page %}
-              <li class="active"><span><em>{{ page }}</em></span></li>
-            {% elsif page == 1 %}
-            <li><a href="{{ paginator.previous_page_path | prepend: site.baseurl | replace: '//', '/' }}">{{ page }}</a></li>
-            {% else %}
-            <li><a href="{{ site.paginate_path | prepend: site.baseurl | replace: '//', '/' | replace: ':num', page }}">{{ page }}</a></li>
-            {% endif %}
-          {% endfor %}
+		<button type="button"
+			class="btn_normal">攻击者</button>
+		<button type="button"
+			class="btn_normal">守护者</button>
+		<button type="button"
+			class="btn_normal">辅助者</button>
+		<button type="button"
+			class="btn_normal">治疗者</button>
+		<button type="button"
+			class="btn_normal">妨碍者</button>
+		<br>
+		<button type="button"
+			class="btn_normal">魔族</button>
+		<button type="button"
+			class="btn_normal">亚人</button>
+		<button type="button"
+			class="btn_normal">人类</button>
+		<br>
+		<button type="button"
+			class="btn_normal">贫乳</button>
+		<button type="button"
+			class="btn_normal">美乳</button>
+		<button type="button"
+			class="btn_normal">巨乳</button>
+		<br>
+		<button type="button"
+			class="btn_normal">小体型</button>
+		<button type="button"
+			class="btn_normal">中体型</button>
+		<br>
+		<button type="button"
+			class="btn_normal">爆发</button>
+		<button type="button"
+			class="btn_normal">回复</button>
+		<button type="button"
+			class="btn_normal">输出</button>
+		<button type="button"
+			class="btn_normal">削弱</button>
+		<button type="button"
+			class="btn_normal">干扰</button>
+		<button type="button"
+			class="btn_normal">保护</button>
+		<button type="button"
+			class="btn_normal">生存力</button>
+		<button type="button"
+			class="btn_normal">群体攻击</button>
+		<button type="button"
+			class="btn_normal">士兵</button>
+		<button type="button"
+			class="btn_normal">越战越强</button>
+		<button type="button"
+			class="btn_normal">防御</button>
+        <button type="button"
+			class="btn_normal">支援</button>
+		<br>
+		<button type="button"
+			class="btn_normal">火属性</button>
+		<button type="button"
+			class="btn_normal">风属性</button>
+		<button type="button"
+			class="btn_normal">暗属性</button>
+		<button type="button"
+			class="btn_normal">光属性</button>
+		<button type="button"
+			class="btn_normal">水属性</button>
+		<br>
+		<button type="button"
+			class="btn_normal">领袖</button>
+		<button type="button"
+			class="btn_normal">精锐</button>
+		<br>
+		<button type="button"
+			class="btn_resetAllTags"
+			onclick="resetAllTags()">重置选择</button>
+		<br>
 
-          {% if paginator.next_page %}
-            <li><a href="{{ paginator.next_page_path | prepend: site.baseurl | replace: '//', '/' }}">Next &raquo;</a></li>
-          {% else %}
-            <li><span >Next &raquo;</span></li>
-          {% endif %}
-          </ul>
-        {% endif %}
+		<table border="1"
+			cellspacing="0">
+			<thead>
+				<tr>
+					<th>选择</th>
+					<th>角色清单</th>
+				</tr>
+			</thead>
+			<tbody id="tbMain"></tbody>
+		</table>
 
-    </div>
-    <div class="col-md-4">  </div>
-</div>
-</div>
+		<div id="foobar">
+            1.9: 垃圾gitee无故封我服务，改成github.<br>
+            1.8: 参考《全境征才tag收集表》，为几乎所有角色补全了体型和乳量词缀，待更多确认
+            <br>
+            1.7: 添加艾可专属词缀【支援】，为剑圣，狐妖，蛇女添加削弱词缀，为军师添加爆发+削弱词缀。待更多确认。
+            <br>
+			给出你的tag，帮你算能获得什么<del>1星</del>角色
+			<br>
+			作者小r
+			<br>
+			公测阶段，有错误联系【克里斯之门攻略组】 群号1009723104，带上错误信息
+			<br>
+			招募时间太短/没有符合条件的角色，会随机删除词缀
+			<br>
+			我没有出过领袖词缀，可能有问题
+			<br>
+			如果同时可能获得高星和低星，极大概率是低星
+			<br>
+			神无雪可能没有火属性，妖狐可能没有水属性，需要更多反馈
+			<br>
+            辅助者必出女仆，风群体出女忍者，光妨碍/妨碍群体出军师，水守护/人守护出蕾欧娜
+            <br>
+            1.3: 经过分析，女仆没有回复词缀，或者没有魔族+暗属性词缀，暂删除了回复词缀。
+            <br>
+            1.3: 已经消除了只能选5个的限制。如果你都选上，可以拿到1份必出2星的清单。
+            <br>
+            1.4: 为狐娘添加了小体型词缀
+            <br>
+            1.5: 页面由于缓存原因刷新不及时，已尝试修复
+            <br>
+            1.5.1: 为撒旦添加了中体型词缀
+            <br>
+            1.6: 为雷欧娜添加保护词缀
+            <br>
+		</div>
+
+		<div hidden>如你所见本页面没有任何加密，因此请勿随意盗用本页面</div>
+	</div>
+</body>
+
+</html>
