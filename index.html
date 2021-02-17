@@ -390,20 +390,23 @@
                已经过一个月的测试，基本稳定。有错误联系【克里斯之门攻略组】 群号1009723104，带上错误信息</br>
 		最好的游戏攻略 公益类初始号 代充 尽在<a href="http://tenkafuma.gamekee.com/">天下布魔中文维基wiki</a>
 		</div>
-		<div id="git-comments"></div>
-    <link rel="stylesheet" href="https://imsun.github.io/gitment/style/default.css">
-		<script src="https://imsun.github.io/gitment/dist/gitment.browser.js"></script>
+		<div id="gitalk-container"></div>
+    <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+    <script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
 		<script>
-		  var gitment = new Gitment({
-		    owner: 'RShock',
-		    repo: 'RShock.github.io',
-		    oauth: {
-		      client_id: 'fa9551ce32916848fb47',
-		      client_secret: ' fc3af79caaca798efb60586a967764bff4192909',
-		    }
-		  })
-		  gitment.render('git-comments')
+      const gitalk = new Gitalk({
+        clientID: 'fa9551ce32916848fb47',
+        clientSecret: 'fc3af79caaca798efb60586a967764bff4192909',
+        repo: 'RShock.github.io',
+        owner: 'RShock',
+        admin: ['RShock'],
+        id: 'test',
+        distractionFreeMode: false
+      })
+
+      gitalk.render('gitalk-container')
 		</script>
+    
 		<div hidden>如你所见本页面没有任何加密，因此请勿随意盗用本页面</div>
 	</div>
 </body>
