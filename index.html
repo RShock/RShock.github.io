@@ -5,13 +5,10 @@
 	<meta http-equiv='Content-Type' content='text/html; charset=utf-8'>
 	<title>全境征才计算器</title>
 	<meta name='keywords' content='天下布魔'>
-    <meta name='description' content='咕咕咕'>
-    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
-    <meta http-equiv="Pragma" content="no-cache" />
-    <meta http-equiv="Expires" content="0" />
-	<!-- <link rel="stylesheet" href="style.css" /> -->
-	<script src="https://imsun.github.io/gitment/dist/gitment.browser.js"></script>
-	
+	<meta name='description' content='咕咕咕'>
+	<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+	<meta http-equiv="Pragma" content="no-cache" />
+	<meta http-equiv="Expires" content="0" />
 	<style>
 		#center_box {
 			margin: 0 auto;
@@ -183,6 +180,7 @@
         }
 
         function checkCharaIsMatch(tags) {
+            // console.log(tags);
             var tmpAns = []
             dataset.forEach(function (value, key, arr) {
                 if (isContain(value, tags)) {
@@ -294,19 +292,10 @@
             };
             return result;
         }
-		
-		var gitment = new Gitment({
-			owner: 'RShock',
-			repo: 'RShock.github.io',
-			oauth: {
-			  client_id: 'fa9551ce32916848fb47',
-			  client_secret: ' 09aac01b8785296f7bfd991b63e5d2ee7c74ec74',
-			}
-		  })
-		  gitment.render('git-comments')
     </script>
-	<link rel="stylesheet" href="https://imsun.github.io/gitment/style/default.css">
-<body style="background:#F8F8FF" id="body">
+
+<body style="background:#F8F8FF"
+	id="body">
 	<div id="center_box">
 		<h1>全境征才计算器 Ver1.9</h1>
 
@@ -402,7 +391,19 @@
 		最好的游戏攻略 公益类初始号 代充 尽在<a href="http://tenkafuma.gamekee.com/">天下布魔中文维基wiki</a>
 		</div>
 		<div id="git-comments"></div>
-		
+    <link rel="stylesheet" href="https://imsun.github.io/gitment/style/default.css">
+		<script src="https://imsun.github.io/gitment/dist/gitment.browser.js"></script>
+		<script>
+		  var gitment = new Gitment({
+		    owner: 'RShock',
+		    repo: 'RShock.github.io',
+		    oauth: {
+		      client_id: 'fa9551ce32916848fb47',
+		      client_secret: ' 09aac01b8785296f7bfd991b63e5d2ee7c74ec74',
+		    }
+		  })
+		  gitment.render('git-comments')
+		</script>
 		<div hidden>如你所见本页面没有任何加密，因此请勿随意盗用本页面</div>
 	</div>
 </body>
