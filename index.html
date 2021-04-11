@@ -225,7 +225,7 @@
       )
     }
 
-    function preIncludes(arr1, arr2){
+    function prefixIncludes(arr1, arr2){
       return arr2.filter(item2 => arr1.find(item1 => item1.startsWith(item2))).length == arr2.length;
     }
 
