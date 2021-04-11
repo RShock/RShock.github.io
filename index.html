@@ -102,7 +102,6 @@
           }
           ans = [];
           searchChara([], 0);
-          console.log(ans);
           sortAns();
           redrawTable();
           document.getElementById("foobar").style.display = "none";
@@ -141,16 +140,20 @@
       var value = "";
       for (var i = 0; i < data.length; i++) {
         if (data[i].value[0].startsWith("3"))
-          value += "<div style=\"color:#FFD700\">";
+          value += "<div style=\"color:#b8860b\">";
         if (data[i].value[0].startsWith("2"))
-          value += "<div style=\"color:#FF0000\">";
+          value += "<div style=\"color:#D87093\">";
         if (data[i].value[0].startsWith("1"))
           value += "<div style=\"color:#B0E0E6\">";
         if (data[i].value[0].startsWith("0"))
           value += "<div style=\"color:#808080\">";
         var data2 = "(" + data[i].value[1];
         for (var j = 2; j < data[i].value.length; j++) {
-          data2 += ", " + data[i].value[j];
+          if(data[i].value[j].includes("(")){
+            data2 += ", <font color=\"#0066CC\">" + data[i].value[j] + "</font>";
+          } else {
+            data2 += ", " + data[i].value[j];
+          }
         }
         value += data[i].value[0] + data2 + ")</div>"
       }
@@ -180,7 +183,6 @@
     }
 
     function checkCharaIsMatch(tags) {
-      // console.log(tags);
       var tmpAns = []
       dataset.forEach(function (value, key, arr) {
         if (isContain(value, tags)) {
@@ -199,15 +201,10 @@
       if (arr2.length == 0) return false;
       var isLV3 = arr2.includes("领袖");
       var isLV2 = arr2.includes("菁英");
-      for (var i = arr2.length - 1; i >= 0; i--) {
-        if (!isLV3 && arr1.includes("领袖")) {
+      if (!isLV3 && arr1.includes("领袖")) {
           return false;
-        }
-        if (!arr1.includes(arr2[i])) {
-          return false;
-        }
       }
-      return true;
+      return prefixIncludes(arr1, arr2);
     }
 
     function sortAns() {
@@ -221,17 +218,26 @@
       var maxLV = data[0].value[0].substr(0, 1);
       return minLV + maxLV + (100 - data.length);
     }
+    
+    function initDataSet() {
+      dataset.forEach(
+        chara => {for (var i=0; i < chara.length; i++) {chara[i] = chara[i].replace(/\(.*\)/, "") }}
+      )
+    }
+
+    function preIncludes(arr1, arr2){
+      return arr2.filter(item2 => arr1.find(item1 => item1.startsWith(item2))).length == arr2.length;
+    }
 
     var dataset = [
-      ["3☆魔王 巴尔", "领袖", "火属性", "魔族", "中体型", "攻击者", "爆发力"],
+      ["3☆魔王 巴尔", "领袖", "火属性", "魔族", "中体型", "攻击者", "爆发力(?)", "输出"],
       ["3☆魔王 撒旦", "领袖", "暗属性", "魔族", "中体型", "守护者", "生存力", "回击"],
-      ["3☆精灵王 赛露西亚", "领袖", "风属性", "亚人", "中体型", "巨乳", "辅助者", "爆发力", "支援"],
-      ["3☆矮人王 兰儿", "领袖", "水属性", "亚人", "小体型", "贫乳", "攻击者", "爆发力"],
+      ["3☆精灵王 赛露西亚", "领袖", "风属性", "亚人", "中体型", "巨乳(?)", "辅助者", "爆发力", "支援"],
+      ["3☆矮人王 兰儿", "领袖", "水属性", "亚人", "小体型", "贫乳", "攻击者", "爆发力", "输出"],
       ["3☆法斯公主 露露", "领袖", "风属性", "人类", "治疗者", "回复"],
-      ["3☆魔王 伊布力斯", "领袖", "光属性", "魔族", "中体型", "攻击者", "生存力", "回复"],
-      ["3☆蛇女之后 梅斯米奈雅", "领袖", "火属性", "妨碍者"],
-      ["3☆KS-VIII 魔人偶", "暗属性", "攻击者", "领袖", "爆发力"],
-      ["3☆圣米勒 天使长", "领袖"],
+      ["3☆魔王 伊布力斯", "领袖", "光属性", "魔族", "中体型", "攻击者", "生存力", "输出"],
+      ["3☆蛇女之后 梅斯米奈雅(收集中)", "领袖", "火属性", "妨碍者", "爆发力", "贫乳", "魔族", "干扰(?)"],
+      ["3☆KS-VIII 魔人偶", "暗属性", "攻击者", "领袖", "爆发力", "输出", "中体型"],
 
       ["2☆魔管家 艾可", "菁英", "暗属性", "魔族", "辅助者", "中体型", "美乳", "支援"],
       ["2☆圣骑士长 雷欧娜", "菁英", "水属性", "人类", "守护者", "美乳", "中体型", "生存力", "保护", "防御"],
@@ -302,7 +308,7 @@
 
 <body style="background:#F8F8FF" id="body">
   <div id="center_box">
-    <h1>全境征才计算器 Ver2.4 by 小r</h1>
+    <h1>全境征才计算器 Ver2.5 by 小r</h1>
 
     <button type="button" class='btn_normal btn'>攻击者</button>
     <button type="button" class='btn_normal btn'>守护者</button>
@@ -358,21 +364,32 @@
     </table>
 
     <div id="foobar">
-      <b>2.4: 根据贴吧反馈移回了巴尔的爆发词缀（存疑），给机娘加了爆发词缀</b></br>
-      <b>为军师补回了支援词缀</b></br>
-      <b>为艾可添加了中体型词缀</b></br>
-      <b>为狐狸添加了干扰词缀</b></br>
-      <b>移除桔梗的输出词缀</b></br>
-      <b>为米诺添加生存力</b></br>
-      <b>添加了布兰</b></br>
-      <b>为试作机添加了输出词缀</b></br>
-      <b>修正安娜为火属性</b></br>
-      <b>注意到1星是没有士兵词缀的(?)，已经全部移除</b></br>
+      2.5 <b><font color="red">新增了存疑词缀，会设为蓝色，需要自行判断。</br>
+        本计算器的领袖词缀由于样本过少，可能出现各种疏漏。
+        对于领袖词缀的选择请借助其他渠道再次确认</font></b></br>
+        <b>主要更新了领袖的词缀：</b></br>
+        <b>伊布：回复改为输出</b></br>
+        <b>巴尔：爆发改为存疑（贴吧有出货的），添加输出</b></br>
+        <b>矮人王：添加输出</b></br>
+        <b>精灵王：巨乳改为存疑，因为没见人出过这个词</b></br>
+        <b>机娘：添加输出和中体型词缀</b></br>
+        <b>蛇后：添加爆发力 贫乳 魔族词缀，个人猜想有干扰词缀（存疑），先加上了</b></br>
+        换了一个更朴素的颜色</br>
+      <br/>
+      2.4: 根据贴吧反馈移回了巴尔的爆发词缀（存疑），给机娘加了爆发词缀</br>
+      为军师补回了支援词缀</br>
+      为艾可添加了中体型词缀</br>
+      为狐狸添加了干扰词缀</br>
+      移除桔梗的输出词缀</br>
+      为米诺添加生存力</br>
+      添加了布兰</br>
+      为试作机添加了输出词缀</br>
+      修正安娜为火属性</br>
+      注意到1星是没有士兵词缀的(?)，已经全部移除</br>
       <br/>
       2.3：根据贴吧反馈移除了巴尔的爆发词缀。游戏更新为小史莱姆添加了回复词缀，刷女王变难了</br>
       2.2：添加了史莱姆女王的数据。以及其他新角色的不完整数据</br>
       发现国内地址还能用，可以尝试去用： <a href="https://xiaorrr.gitee.io/tenkafuma/">https://xiaorrr.gitee.io/tenkafuma/</a></br>
-      已经过一个月的测试，基本稳定。有错误联系【克里斯之门攻略组】 群号1009723104，带上错误信息</br>
       最好的游戏攻略 公益类初始号 代充 尽在<a href="http://tenkafuma.gamekee.com/">天下布魔中文维基wiki</a>
     </div>
     <div id="gitalk-container"></div>
