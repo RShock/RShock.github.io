@@ -91,23 +91,38 @@
         arr[i].onclick = function () {
           if (this.className == 'btn_normal btn') {
             this.className = 'btn_clicked btn';
-            tags.push(this.innerHTML);
+            // tags.push(this.innerHTML);
           } else {
             this.className = 'btn_normal btn';
-            for (let i = 0; i < arr.length; i++) {
-              if (tags[i] == this.innerHTML) {
-                tags.splice(i, 1);
-                break;
-              }
-            }
+            // for (let i = 0; i < arr.length; i++) {
+            //   if (tags[i] == this.innerHTML) {
+            //     tags.splice(i, 1);
+            //     break;
+            //   }
+            // }
           }
-          ans = [];
-          searchChara([], 0);
-          sortAns();
-          redrawTable();
-          document.getElementById("foobar").style.display = "none";
+          searchAndShow();
         }
       }
+    }
+
+    function searchAndShow() {
+      collectSelectedTags();
+      ans = [];
+      searchChara([], 0);
+      sortAns();
+      redrawTable();
+      document.getElementById("foobar").style.display = "none";
+    }
+
+    function collectSelectedTags() {
+      tags = [];
+      var allBtns = document.getElementsByClassName('btn');
+      for(btn of allBtns) {
+        if(btn.className == 'btn_clicked btn'){
+          tags.push(btn.innerHTML);
+        }
+      };
     }
 
     function redrawTable() {
@@ -140,14 +155,15 @@
     function convertCharaDataToColorfulString(data) {
       var value = "";
       for (var i = 0; i < data.length; i++) {
+        value += "<div onClick=\"lockCharaClick('"+data[i].value[0]+"')\" style=\"color:";
         if (data[i].value[0].startsWith("3"))
-          value += "<div style=\"color:#b8860b\">";
+          value += "#b8860b\">";
         if (data[i].value[0].startsWith("2"))
-          value += "<div style=\"color:#D87093\">";
+          value += "#D87093\">";
         if (data[i].value[0].startsWith("1"))
-          value += "<div style=\"color:#B0E0E6\">";
+          value += "#B0E0E6\">";
         if (data[i].value[0].startsWith("0"))
-          value += "<div style=\"color:#808080\">";
+          value += "#808080\">";
         var data2 = "(" + data[i].value[1];
         for (var j = 2; j < data[i].value.length; j++) {
           if(data[i].value[j].includes("(")){
@@ -217,7 +233,8 @@
     function countValue(data) {
       var minLV = data[data.length - 1].value[0].substr(0, 1);
       var maxLV = data[0].value[0].substr(0, 1);
-      return minLV + maxLV + (100 - data.length);
+      var tagCount = data[0].tags.length;
+      return minLV + maxLV + (100 - data.length) + (10 -tagCount);
     }
     
     function initDataSet() {
@@ -228,6 +245,25 @@
 
     function prefixIncludes(arr1, arr2){
       return arr2.filter(item2 => arr1.find(item1 => item1.startsWith(item2))).length == arr2.length;
+    }
+
+    function lockCharaClick(charaName) {
+      resetAllTags()
+      var charaData;
+      dataset.forEach(chara => {
+        if(chara[0] == charaName){
+          charaData = chara;
+        }
+      });
+      var allBtns = document.getElementsByClassName('btn');
+      for(btn of allBtns) {
+        if(btn.innerHTML == "菁英")continue;
+        if(charaData.find(tag => tag.startsWith(btn.innerHTML))){
+          btn.className = 'btn_clicked btn';
+        }
+      };
+      tags.push(this.innerHTML);
+      searchAndShow();
     }
 
     var dataset = [
@@ -309,7 +345,7 @@
 
 <body style="background:#F8F8FF" id="body">
   <div id="center_box">
-    <h1>全境征才计算器 Ver2.5 by 小r</h1>
+    <h1>全境征才计算器 Ver2.6 by 小r</h1>
 
     <button type="button" class='btn_normal btn'>攻击者</button>
     <button type="button" class='btn_normal btn'>守护者</button>
@@ -365,6 +401,7 @@
     </table>
 
     <div id="foobar">
+      2.6 <b>新增了查询指定角色必出词缀的功能，只需要在结果表格里点击对应角色就可以查看。对于2词必出角色，会显示很多重复的3词，注意自行筛选。该功能不会将“菁英”词缀考虑在内</b></br>
       2.5 <b><font color="red">新增了存疑词缀，会设为蓝色，需要自行判断。</br>
         本计算器的领袖词缀由于样本过少，可能出现各种疏漏。
         对于领袖词缀的选择请借助其他渠道再次确认</font></b></br>
