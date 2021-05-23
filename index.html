@@ -156,7 +156,7 @@
     function convertCharaDataToColorfulString(data) {
       var value = "";
       for (var i = 0; i < data.length; i++) {
-        value += "<div onClick=\"lockCharaClick('"+data[i].value[0]+"')\" style=\"color:";
+        value += "<div style=\"color:";
         if (data[i].value[0].startsWith("3"))
           value += "#b8860b\">";
         if (data[i].value[0].startsWith("2"))
@@ -173,7 +173,7 @@
             data2 += ", " + data[i].value[j];
           }
         }
-        value += "<u style=\"cursor:pointer\">" + data[i].value[0] + "</u> ("+ data2 + ")</div>"
+        value += "<u style=\"cursor:pointer\" onClick=\"lockCharaClick('"+data[i].value[0]+"')\">" + data[i].value[0] + "</u> ("+ data2 + ")</div>"
       }
       return value;
     }
