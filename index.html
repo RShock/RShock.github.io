@@ -165,7 +165,7 @@
           value += "#B0E0E6\">";
         if (data[i].value[0].startsWith("0"))
           value += "#808080\">";
-        var data2 = "(" + data[i].value[1];
+        var data2 = data[i].value[1];
         for (var j = 2; j < data[i].value.length; j++) {
           if(data[i].value[j].includes("(")){
             data2 += ", <font color=\"#0066CC\">" + data[i].value[j] + "</font>";
@@ -173,7 +173,7 @@
             data2 += ", " + data[i].value[j];
           }
         }
-        value += data[i].value[0] + data2 + ")</div>"
+        value += "<u style=\"cursor:pointer\">" + data[i].value[0] + "</u> ("+ data2 + ")</div>"
       }
       return value;
     }
