@@ -5,11 +5,13 @@
   <meta http-equiv='Content-Type' content='text/html; charset=utf-8'>
   <title>全境征才计算器</title>
   <meta name='keywords' content='天下布魔'>
-  <meta name='description' content='3.1 煌星词条收集完毕'>
+  <meta name='description' content='3.3 新角色加入预备'>
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
   <style>
+    body{background:rgb(204，232，207)} 
+
     #center_box {
       margin: 0 auto;
       width: 90%;
@@ -75,7 +77,7 @@
 
     .pc-style {
       width: 80%;
-      zoom: 0.4;
+      zoom: 0.55;
       margin: 0 auto;
     }
     
@@ -86,6 +88,7 @@
       padding: 10px;
     }
   </style>
+  
   <script type="text/javascript">
     var tags = [];
     var ans = [];
@@ -161,9 +164,7 @@
           value += "#b8860b\">";
         if (data[i].value[0].startsWith("2"))
           value += "#D87093\">";
-        if (data[i].value[0].startsWith("1"))
-          value += "#B0E0E6\">";
-        if (data[i].value[0].startsWith("0"))
+        if (data[i].value[0].startsWith("1") || data[i].value[0].startsWith("0"))
           value += "#808080\">";
         var data2 = data[i].value[1];
         for (var j = 2; j < data[i].value.length; j++) {
@@ -173,7 +174,8 @@
             data2 += ", " + data[i].value[j];
           }
         }
-        value += "<u style=\"cursor:pointer\" onClick=\"lockCharaClick('"+data[i].value[0]+"')\">" + data[i].value[0] + "</u> ("+ data2 + ")</div>"
+        value += "<u style=\"cursor:pointer\" onClick=\"lockCharaClick('"+data[i].value[0]+"')\">" + 
+                  data[i].value[0] + "</u> ("+ data2 + ")</div>"
       }
       return value;
     }
@@ -277,7 +279,10 @@
       ["3☆蛇女之后 梅斯米奈雅", "领袖", "火属性", "妨碍者", "爆发力", "贫乳", "魔族", "干扰(?)", "削弱"],
       ["3☆KS-VIII 魔人偶", "暗属性", "攻击者", "领袖", "爆发力", "输出", "中体型"],
       ["3☆煌星 妲斯艾菲娜", "暗属性", "辅助者", "领袖", "人类", "中体型", "贫乳", "支援"],
-      ["3☆复生公主 千鹤(收集中)", "风属性", "攻击者", "领袖", "爆发力", "输出", "中体型(?)", "魔族"],
+      ["3☆复生公主 千鹤", "风属性", "攻击者", "领袖", "爆发力", "输出", "中体型(?)", "魔族"],
+      ["3☆天使长 圣米勒", "光属性", "攻击者" , "领袖", "输出(?)", "爆发力(?)"],
+      ["3☆千年血族 洛缇亚", "暗属性", "亚人(?)", "攻击者", "领袖", "回复(?)", "巨乳(?)", "输出(?)", "爆发力(?)"],
+      ["3☆食梦 阿尔蒂雅", "暗属性", "妨碍者", "亚人(?)", "领袖", "贫乳(?)", "爆发力(?)", "干扰(?)", "削弱(?)", "支援(?)"],
 
       ["2☆魔管家 艾可", "菁英", "暗属性", "魔族", "辅助者", "中体型", "美乳", "支援"],
       ["2☆圣骑士长 雷欧娜", "菁英", "水属性", "人类", "守护者", "美乳", "中体型", "生存力", "保护", "防御"],
@@ -288,6 +293,7 @@
       ["2☆大将军 朱诺安", "菁英", "暗属性", "人类", "攻击者", "巨乳", "中体型", "输出", "支援"],
       ["2☆天才女军师 布兰妮", "菁英", "光属性", "人类", "妨碍者", "美乳", "中体型", "群体攻击", "削弱", "爆发力", "支援"],
       ["2☆史莱姆女王 娜芙拉拉", "菁英", "风属性", "魔族", "守护者", "巨乳", "中体型", "保护", "防御", "生存力", "回复"],
+      ["2☆魔法少女 托特拉" , "菁英", "光属性", "人类(?)", "爆发力(?)", "美乳(?)", "削弱(?)", "越战越强(?)", "输出(?)"],
 
       ["1☆流浪魔法师 尤依", "火属性", "攻击者", "人类", "巨乳", "小体型", "越战越强", "输出"],
       ["1☆龙女 伊维斯", "火属性", "攻击者", "亚人", "贫乳", "小体型", "越战越强", "群体攻击", "输出"],
@@ -317,6 +323,8 @@
       ["0☆法斯菁英近卫 安娜", "火属性", "守护者", "人类", "中体型", "防御", "士兵", "保护", "美乳"],
       ["0☆法斯高阶法师 诺诺可", "水属性", "攻击者", "人类", "中体型", "美乳", "输出", "士兵", "爆发力"],
       ["0☆法斯精锐骑士 布兰", "风属性", "攻击者", "人类", "中体型", "美乳", "输出", "防御", "士兵"],
+      ["0☆惩戒天使", "水属性", "守护者", "士兵", "亚人"],
+      ["0☆福音天使", "水属性", "治疗者", "士兵", "亚人"],
     ]
 
     function getDevice() {
@@ -327,16 +335,6 @@
             var $body = document.getElementById('body')
             $body.classList.add('pc-style');
             return 'windows pc';
-          } else if (/iphone|ipod/.test(agent) && /mobile/.test(agent)) {
-            return 'iphone';
-          } else if (/ipad/.test(agent) && /mobile/.test(agent)) {
-            return 'ipad';
-          } else if (/android/.test(agent) && /mobile/.test(agent)) {
-            return 'android';
-          } else if (/linux/.test(agent)) {
-            return 'linux pc';
-          } else if (/mac/.test(agent)) {
-            return 'mac';
           } else {
             return 'other';
           }
@@ -346,9 +344,9 @@
     }
   </script>
 
-<body style="background:#F8F8FF" id="body">
+<body style="background:rgb(230, 230, 255)" id="body">
   <div id="center_box">
-    <h1 style="display: inline;">全境征才计算器 Ver3.2 by 小r</h1><small>邀请码 USHL2U</small></br>
+    <h1 style="display: inline;">全境征才计算器 3.3 by 小r</h1><small>邀请码 USHL2U</small></br>
 
     <button type="button" class='btn_normal btn'>攻击者</button>
     <button type="button" class='btn_normal btn'>守护者</button>
@@ -380,11 +378,11 @@
     <button type="button" class='btn_normal btn'>防御</button>
     <button type="button" class='btn_normal btn'>支援</button>
     <br>
+    <button type="button" class='btn_normal btn'>水属性</button>
     <button type="button" class='btn_normal btn'>火属性</button>
     <button type="button" class='btn_normal btn'>风属性</button>
-    <button type="button" class='btn_normal btn'>暗属性</button>
     <button type="button" class='btn_normal btn'>光属性</button>
-    <button type="button" class='btn_normal btn'>水属性</button>
+    <button type="button" class='btn_normal btn'>暗属性</button>
     <br>
     <button type="button" class='btn_normal btn'>领袖</button>
     <button type="button" class='btn_normal btn'>菁英</button>
@@ -404,41 +402,20 @@
     </table>
 
     <div id="foobar">
-      <h1>对于无法翻墙的玩家 提供了一个国内地址，需要的记得保存 <a href="http://47.99.93.37/">http://47.99.93.37/</a></h1>
+      <h1>3.3 新角色会在29日后加入，以下内容较为重要</br></h1>
+      (1) 所有角色词条都是玩家猜出来的，更新初期，词条全部未知，试验词条有成本，请自愿参加或等待。</br>
+      (2) 我已经提前加入了词条。这些词条是我猜的，所以以问号标记，如果你选了该词条出货了，
+      请于天下布魔ma吧贴吧专楼反馈，我会把问号去掉，如果没出货，我会把词条去掉（被划掉的，需要有很多的人被划掉才能确认是真的没有）</br>
+      最好给出出货前和出货截图</br>
+      (3) 对于SSR SR 我都尽量猜了大量词条，如果你觉得我还有没加的，同样反馈给我</br>
+      对于R卡，我不加入任何不确定的词条，以免污染了SR的必出词条。如果你出货了新R卡，且这个词条网页没有标记，也请反馈给我</br>
+      (4) 因为已经有国内站点了，且接下来更新极快，离线版短期内不会更新</br>
+    </br>
+      对于无法翻墙的玩家 提供了一个国内地址，需要的记得保存 <a href="http://47.99.93.37/">http://47.99.93.37/</a></br>
+
+      其他更新：为不同版本的主页背景更换了不同的颜色,微调词缀位置</br>
       3.2 由喵汇报 为剑圣添加了美乳-越战越强词条</br>
-      3.1 gszsd和夜无月汇报了煌星的支援词条</br>
-      3.0 煌星与千鹤的词缀开始收集了，小心歪新卡，当然如果真歪了记得汇报</br>
-      由qq631039568确认了煌星的中体型词缀</br>
-      2.9 由@帝国の栄光に輝い确认了撒旦的防御词缀</br>
-      2.8 由@lixiaoyaosi确认了蛇后的削弱词缀</br>
-      2.7 发现领袖与防御、削弱能同时出现，猜想撒旦有防御，蛇后有削弱。收集到一例爆发力出巴尔的案例，去除爆发力的问号。</br>
-      2.6 新增了查询指定角色必出词缀的功能，只需要在结果表格里点击对应角色就可以查看。对于2词必出角色，会显示很多重复的3词，注意自行筛选。该功能不会将“菁英”词缀考虑在内</br>
-      2.5 <b>新增了存疑词缀，会设为蓝色，需要自行判断。</br>
-        本计算器的领袖词缀由于样本过少，可能出现各种疏漏。
-        对于领袖词缀的选择请借助其他渠道再次确认</b></br>
-        主要更新了领袖的词缀：</br>
-        伊布：回复改为输出</br>
-        巴尔：爆发改为存疑（贴吧有出货的），添加输出</br>
-        矮人王：添加输出</br>
-        精灵王：巨乳改为存疑，因为没见人出过这个词</br>
-        机娘：添加输出和中体型词缀</br>
-        蛇后：添加爆发力 贫乳 魔族词缀，个人猜想有干扰词缀（存疑），先加上了</br>
-        换了一个更朴素的颜色</br>
-        PC页面缩放默认为40%</br>
-      <br/>
-      2.4: 根据贴吧反馈移回了巴尔的爆发词缀（存疑），给机娘加了爆发词缀</br>
-      为军师补回了支援词缀</br>
-      为艾可添加了中体型词缀</br>
-      为狐狸添加了干扰词缀</br>
-      移除桔梗的输出词缀</br>
-      为米诺添加生存力</br>
-      添加了布兰</br>
-      为试作机添加了输出词缀</br>
-      修正安娜为火属性</br>
-      注意到1星是没有士兵词缀的(?)，已经全部移除</br>
-      <br/>
-      2.3：根据贴吧反馈移除了巴尔的爆发词缀。游戏更新为小史莱姆添加了回复词缀，刷女王变难了</br>
-      2.2：添加了史莱姆女王的数据。以及其他新角色的不完整数据</br>
+      之前的<a href="https://github.com/RShock/RShock.github.io/blob/master/update.md">更新日志</a></br>
       最好的游戏攻略 公益类初始号 代充 尽在<a href="http://tenkafuma.gamekee.com/">天下布魔中文维基wiki(已倒闭)</a>
     </div>
     <div id="gitalk-container"></div>
