@@ -5,7 +5,7 @@
   <meta http-equiv='Content-Type' content='text/html; charset=utf-8'>
   <title>全境征才计算器</title>
   <meta name='keywords' content='天下布魔'>
-  <meta name='description' content='3.3 新角色加入预备'>
+  <meta name='description' content='3.4 预测系统已加入'>
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
@@ -30,6 +30,11 @@
     .btn_normal {
       color: rgb(80, 80, 109);
       background-image: linear-gradient(rgb(255, 255, 255), rgb(240, 240, 240))
+    }
+
+    .btn_hint {
+      color: rgb(80, 80, 109);
+      background-image: linear-gradient(rgb(255, 255, 255), rgb(151, 191, 211))
     }
 
     .btn_clicked {
@@ -93,14 +98,16 @@
     var tags = [];
     var ans = [];
     var propheticWords = [];
+    var wordBtns = [];
     window.onload = function () {
       // 调整屏幕宽度
       getDevice()
       initPropheticWords() //初始化词条预言系统
-      var arr = document.getElementsByClassName('btn_normal btn');
-      for (var i = 0; i < arr.length; i++) {
-        arr[i].className = 'btn_normal btn';
-        arr[i].onclick = function () {
+    
+      wordBtns = document.getElementsByClassName('btn_normal btn');
+      for (var i = 0; i < wordBtns.length; i++) {
+        wordBtns[i].className = 'btn_normal btn';
+        wordBtns[i].onclick = function () {
           if (this.className == 'btn_normal btn' || this.className == 'btn_hint btn') {
             this.className = 'btn_clicked btn';
             // tags.push(this.innerHTML);
@@ -116,16 +123,68 @@
       propheticWords = propheticWords.map(w => w.split(','));
     }
 
+    var time = 0;
     //预言系统 基于交互设计理念 为用户自动补全
-    function propheticWord() {
-      if(tags.length <= 4) {
-        //propheticWords.forEach().filter(words => words.isContain())
+    function propheticWord(tags) {
+      btns = document.getElementsByClassName('btn_normal btn');
+      hintBtns =  document.getElementsByClassName('btn_hint btn');
+      while (hintBtns.length != 0) {
+        hintBtns[0].className = 'btn_normal btn';
+      }
+      if(tags.length == 1){
+         time = new Date();
+      }
+      if(tags.length == 3){
+         time 
+      }
+      if(tags.length <= 4 && tags.length >= 1) {
+        matchWordPair = propheticWords.filter(words => {
+          var sliceWords = words.slice(0, tags.length);
+          if(prefixIncludes(sliceWords, tags))
+            return true;
+        })
+        if(matchWordPair.length == 1 && tags.length >= 3){
+          time2 = new Date();
+          console.log(time2-time);
+          if(time2-time < 3000){
+            time = 0;
+            for(var i=tags.length ; i<=5; i++){
+              enableWord(btns,hintBtns,matchWordPair[0][i]);
+            }
+          }
+        }
+        console.log(matchWordPair);
+        matchWordPair.forEach(words =>  hintWord(btns,words[tags.length]));
+      }
+    }
+
+    function hintWord(btns, word) {
+      for(var i=0;i<btns.length;i++){
+        if(btns[i].innerText ==  word) {
+          btns[i].className = 'btn_hint btn';
+          break;
+        }
+      }
+    }
+
+    function enableWord(btn, hintBtns, word) {
+      for(var i=0;i<btns.length;i++){
+        if(btns[i].innerText ==  word) {
+          btns[i].className = 'btn_clicked btn';
+          break;
+        }
+      }
+      for(var i=0;i<hintBtns.length;i++){
+        if(hintBtns[i].innerText ==  word) {
+          hintBtns[i].className = 'btn_clicked btn';
+          break;
+        }
       }
     }
 
     function searchAndShow() {
       collectSelectedTags();
-      propheticWord();
+      propheticWord(tags);
       ans = [];
       searchChara([], 0);
       sortAns();
@@ -197,8 +256,12 @@
     function resetAllTags() {
       console.log('resetAllTags');
       var arr = document.getElementsByClassName('btn_clicked btn');
+      var arr2 = document.getElementsByClassName('btn_hint btn');
       while (arr.length != 0) {
         arr[0].className = 'btn_normal btn';
+      }
+      while (arr2.length != 0) {
+        arr2[0].className = 'btn_normal btn';
       }
       tags = [];
       ans = [];
@@ -465,7 +528,7 @@ var propheticWords = ["中体型,亚人,削弱,回击,领袖",
 
 <body style="background:rgb(230, 230, 255)" id="body">
   <div id="center_box">
-    <h1 style="display: inline;">全境征才计算器 3.3 by 小r</h1><small>邀请码 USHL2U</small></br>
+    <h1 style="display: inline;">全境征才计算器 3.4 by 小r</h1><small>邀请码 USHL2U</small></br>
 
     <button type="button" class='btn_normal btn'>攻击者</button>
     <button type="button" class='btn_normal btn'>守护者</button>
@@ -521,6 +584,8 @@ var propheticWords = ["中体型,亚人,削弱,回击,领袖",
     </table>
 
     <div id="foobar">
+      <h1>3.4 懒人境界永无止步</h1>
+      具体功能自行探索</br>
       <h1>3.3 新角色会在29日后加入，以下内容较为重要</br></h1>
       (1) 所有角色词条都是玩家猜出来的，更新初期，词条全部未知，试验词条有成本，请自愿参加或等待。</br>
       (2) 我已经提前加入了词条。这些词条是我猜的，所以以问号标记，如果你选了该词条出货了，
