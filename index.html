@@ -39,7 +39,14 @@
 
     .btn_clicked {
       color: white;
-      background-image: linear-gradient(rgb(82, 179, 222), rgb(74, 163, 209))
+      background-image: linear-gradient(rgb(82, 179, 222), rgb(74, 163, 209));
+      animation: blink 0.4s 1;
+    }
+
+    @keyframes blink
+    {
+    0% { background-image: linear-gradient(rgb(255, 255, 255), rgb(151, 191, 211))}
+    100% { background-image: linear-gradient(rgb(82, 179, 222), rgb(74, 163, 209)) }
     }
 
     .btn_resetAllTags {
