@@ -5,13 +5,11 @@
   <meta http-equiv='Content-Type' content='text/html; charset=utf-8'>
   <title>全境征才计算器</title>
   <meta name='keywords' content='天下布魔'>
-  <meta name='description' content='3.5 新角色收集中'>
+  <meta name='description' content='3.6 繁简切换测试中'>
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
   <style>
-    body{background:rgb(204，232，207)} 
-
     #center_box {
       margin: 0 auto;
       width: 90%;
@@ -22,7 +20,7 @@
       font-size: 50px;
       width: 32%;
       border-radius: 20px;
-      margin: 6px 4px;
+      margin: 5px 2px;
       box-shadow: 0 1px rgb(98, 127, 140);
       line-height: 100%;
     }
@@ -30,6 +28,17 @@
     .btn_normal {
       color: rgb(80, 80, 109);
       background-image: linear-gradient(rgb(255, 255, 255), rgb(240, 240, 240))
+    }
+
+    .btn_language {
+      height: 40px;
+      width: 15%;
+      font-size: 30px;
+      border-radius: 20px;
+      margin-right: 2%;
+      box-shadow: 0 1px rgb(98, 127, 140);
+      line-height: 100%;
+      float: right
     }
 
     .btn_hint {
@@ -43,6 +52,7 @@
       animation: blink 0.4s 1;
     }
 
+    /* 点击按钮后的闪烁动画（有点丑） */
     @keyframes blink
     {
     0% { background-image: linear-gradient(rgb(255, 255, 255), rgb(151, 191, 211))}
@@ -53,10 +63,6 @@
       width: 100%;
       color: white;
       background-color: rgb(236, 91, 85)
-    }
-
-    #foobar {
-      font-size: 25px;
     }
 
     table {
@@ -93,7 +99,8 @@
       margin: 0 auto;
     }
     
-    #foobar {
+    #anotation {
+      font-size: 25px;
       margin: 20px;
       border: 1px solid #065279;
       border-radius: 10px;
@@ -102,22 +109,21 @@
   </style>
   
   <script type="text/javascript">
-    var tags = [];
-    var ans = [];
-    var propheticWords = [];
-    var wordBtns = [];
+    var tags = [];  //收集当前选中的tag
+    var ans = [];   //收集最后的结果
+    var propheticWords = [];  //收集固有词条组合模式用于预测
     window.onload = function () {
-      // 调整屏幕宽度
+      // 调整屏幕宽度，如果是电脑把字调小一点
       getDevice()
       initPropheticWords() //初始化词条预言系统
-    
-      wordBtns = document.getElementsByClassName('btn_normal btn');
+      initST()
+      
+      var wordBtns = document.getElementsByClassName('btn_normal btn');
       for (var i = 0; i < wordBtns.length; i++) {
         wordBtns[i].className = 'btn_normal btn';
         wordBtns[i].onclick = function () {
           if (this.className == 'btn_normal btn' || this.className == 'btn_hint btn') {
             this.className = 'btn_clicked btn';
-            // tags.push(this.innerHTML);
           } else {
             this.className = 'btn_normal btn';
           }
@@ -125,11 +131,86 @@
         }
       }
     }
+    
+    function getDevice() {
+      var agent = navigator.userAgent.toLowerCase();
+      var result = {
+        device: function () {
+          if (/windows/.test(agent)) {
+            var $body = document.getElementById('body')
+            $body.classList.add('pc-style');
+            return 'windows pc';
+          } else {
+            return 'other';
+          }
+        }(),
+      };
+      return result;
+    }
 
     function initPropheticWords() {
       propheticWords = propheticWords.map(w => w.split(','));
     }
 
+/***********************************繁简转换相关代码**************************************/
+  function initST() {    
+    var lang = getQueryVariable("lang")
+    var lang2 = getCookie("tkbmLang")
+    if(lang=="T" || lang2=="T"){
+      s2t()
+      s2tSet(propheticWords)
+      s2tSet(dataset)
+    }
+  }
+
+function switchST() {
+  var lang = getQueryVariable("lang")
+  var lang2 = getCookie("tkbmLang")
+  if(lang=="T" || lang2=="T"){
+    addCookie("tkbmLang", "S", 999)
+    window.location.href=window.location.href.split('?')[0];
+  } else {
+    addCookie("tkbmLang", "T", 999)    
+    window.location.href=window.location.href.split('&')[0] + "?lang=T";
+  }
+}
+
+
+/**********************************缓存相关代码***********************************/
+//写Cookie
+function addCookie(objName, objValue, objHours) {
+    var str = objName + "=" + escape(objValue); //编码
+    if (objHours > 0) {//为0时不设定过期时间，浏览器关闭时cookie自动消失
+        var date = new Date();
+        var ms = objHours * 3600 * 1000;
+        date.setTime(date.getTime() + ms);
+        str += "; expires=" + date.toGMTString();
+    }
+    document.cookie = str;
+}
+
+//读Cookie
+function getCookie(objName) {//获取指定名称的cookie的值
+    var arrStr = document.cookie.split("; ");
+    for (var i = 0; i < arrStr.length; i++) {
+        var temp = arrStr[i].split("=");
+        if (temp[0] == objName) return unescape(temp[1]);  //解码
+    }
+    return "";
+}
+
+function getQueryVariable(variable)
+{
+       var query = window.location.search.substring(1);
+       var vars = query.split("&");
+       for (var i=0;i<vars.length;i++) {
+               var pair = vars[i].split("=");
+               if(pair[0] == variable){return pair[1];}
+       }
+       return(false);
+}
+
+/***********************************预言系统代码******************************************/
     var time = 0;
     //预言系统 基于交互设计理念 为用户自动补全
     function propheticWord(tags) {
@@ -138,12 +219,6 @@
       while (hintBtns.length != 0) {
         hintBtns[0].className = 'btn_normal btn';
       }
-      if(tags.length == 1){
-         time = new Date();
-      }
-      if(tags.length == 3){
-         time 
-      }
       if(tags.length <= 4 && tags.length >= 1) {
         matchWordPair = propheticWords.filter(words => {
           var sliceWords = words.slice(0, tags.length);
@@ -151,16 +226,10 @@
             return true;
         })
         if(matchWordPair.length == 1 && tags.length >= 3){
-          time2 = new Date();
-          console.log(time2-time);
-          if(time2-time < 3000){
-            time = 0;
-            for(var i=tags.length ; i<=5; i++){
-              enableWord(btns,hintBtns,matchWordPair[0][i]);
-            }
+          for(var i=tags.length ; i<=5; i++){
+            enableWord(btns,hintBtns,matchWordPair[0][i]);
           }
         }
-        console.log(matchWordPair);
         matchWordPair.forEach(words =>  hintWord(btns,words[tags.length]));
       }
     }
@@ -190,6 +259,7 @@
       searchAndShow();
     }
 
+/***********************************搜索系统代码******************************************/
     function searchAndShow() {
       collectSelectedTags();
       propheticWord(tags);
@@ -197,7 +267,7 @@
       searchChara([], 0);
       sortAns();
       redrawTable();
-      document.getElementById("foobar").style.display = "none";
+      document.getElementById("anotation").style.display = "none";
     }
 
     function collectSelectedTags() {
@@ -235,30 +305,6 @@
       row.appendChild(nameCell);
 
       return row;
-    }
-
-    function convertCharaDataToColorfulString(data) {
-      var value = "";
-      for (var i = 0; i < data.length; i++) {
-        value += "<div style=\"color:";
-        if (data[i].value[0].startsWith("3"))
-          value += "#b8860b\">";
-        if (data[i].value[0].startsWith("2"))
-          value += "#D87093\">";
-        if (data[i].value[0].startsWith("1") || data[i].value[0].startsWith("0"))
-          value += "#808080\">";
-        var data2 = data[i].value[1];
-        for (var j = 2; j < data[i].value.length; j++) {
-          if(data[i].value[j].includes("(")){
-            data2 += ", <font color=\"#0066CC\">" + data[i].value[j] + "</font>";
-          } else {
-            data2 += ", " + data[i].value[j];
-          }
-        }
-        value += "<u style=\"cursor:pointer\" onClick=\"lockCharaClick('"+data[i].value[0]+"')\">" + 
-                  data[i].value[0] + "</u> ("+ data2 + ")</div>"
-      }
-      return value;
     }
 
     function resetAllTags() {
@@ -354,28 +400,54 @@
       searchAndShow();
     }
 
+/********************************计算结果填充代码************************************/
+function convertCharaDataToColorfulString(data) {
+      var value = "";
+      for (var i = 0; i < data.length; i++) {
+        value += "<div style=\"color:";
+        if (data[i].value[0].startsWith("3"))
+          value += "#b8860b\">";
+        if (data[i].value[0].startsWith("2"))
+          value += "#D87093\">";
+        if (data[i].value[0].startsWith("1") || data[i].value[0].startsWith("0"))
+          value += "#808080\">";
+        var data2 = data[i].value[1];
+        for (var j = 2; j < data[i].value.length; j++) {
+          if(data[i].value[j].includes("(")){
+            data2 += ", <font color=\"#0066CC\">" + data[i].value[j] + "</font>";
+          } else {
+            data2 += ", " + data[i].value[j];
+          }
+        }
+        value += "<u style=\"cursor:pointer\" onClick=\"lockCharaClick('"+data[i].value[0]+"')\">" + 
+                  data[i].value[0] + "</u> ("+ data2 + ")</div>"
+      }
+      return value;
+    }
+
+/********************************数据集合**********************************************/
     var dataset = [
       ["3☆魔王 巴尔", "领袖", "火属性", "魔族", "中体型", "攻击者", "爆发力", "输出"],
-      ["3☆魔王 撒旦", "领袖", "暗属性", "魔族", "中体型", "守护者", "生存力", "回击", "防御"],
+      ["3☆魔王 撒旦", "领袖", "闇属性", "魔族", "中体型", "守护者", "生存力", "回击", "防御"],
       ["3☆精灵王 赛露西亚", "领袖", "风属性", "亚人", "中体型", "巨乳(?)", "辅助者", "爆发力", "支援"],
       ["3☆矮人王 兰儿", "领袖", "水属性", "亚人", "小体型", "贫乳", "攻击者", "爆发力", "输出"],
       ["3☆法斯公主 露露", "领袖", "风属性", "人类", "治疗者", "回复"],
       ["3☆魔王 伊布力斯", "领袖", "光属性", "魔族", "中体型", "攻击者", "生存力", "输出"],
       ["3☆蛇女之后 梅斯米奈雅", "领袖", "火属性", "妨碍者", "爆发力", "贫乳", "魔族", "干扰(?)", "削弱"],
-      ["3☆KS-VIII 魔人偶", "暗属性", "攻击者", "领袖", "爆发力", "输出", "中体型"],
-      ["3☆煌星 妲斯艾菲娜", "暗属性", "辅助者", "领袖", "人类", "中体型", "贫乳", "支援"],
+      ["3☆KS-VIII 魔人偶", "闇属性", "攻击者", "领袖", "爆发力", "输出", "中体型"],
+      ["3☆煌星 妲斯艾菲娜", "闇属性", "辅助者", "领袖", "人类", "中体型", "贫乳", "支援"],
       ["3☆复生公主 千鹤", "风属性", "攻击者", "领袖", "爆发力", "输出", "中体型(?)", "魔族"],
       ["3☆天使长 圣米勒", "光属性", "攻击者" , "领袖", "亚人(?)", "支援", "输出(?)", "爆发力(?)"],
-      ["3☆千年血族 洛缇亚(收集中)", "暗属性", "攻击者", "魔族", "领袖", "回复(?)", "巨乳(?)", "输出(?)", "爆发力", "生存力(?)"],
-      ["3☆食梦 阿尔蒂雅(收集中)", "暗属性", "妨碍者", "亚人", "领袖", "贫乳", "干扰(?)", "削弱", "支援(?)"],
+      ["3☆千年血族 洛缇亚(收集中)", "闇属性", "攻击者", "魔族", "领袖", "回复(?)", "巨乳(?)", "输出(?)", "爆发力", "生存力(?)"],
+      ["3☆食梦 阿尔蒂雅(收集中)", "闇属性", "妨碍者", "亚人", "领袖", "贫乳", "干扰(?)", "削弱", "支援(?)"],
 
-      ["2☆魔管家 艾可", "菁英", "暗属性", "魔族", "辅助者", "中体型", "美乳", "支援"],
+      ["2☆魔管家 艾可", "菁英", "闇属性", "魔族", "辅助者", "中体型", "美乳", "支援"],
       ["2☆圣骑士长 雷欧娜", "菁英", "水属性", "人类", "守护者", "美乳", "中体型", "生存力", "保护", "防御"],
       ["2☆神官长 菲欧菈", "菁英", "光属性", "人类", "治疗者", "美乳", "中体型", "回复"],
       ["2☆女忍者 凛月", "菁英", "风属性", "人类", "攻击者", "美乳", "小体型", "输出", "群体攻击", "爆发力"],
       ["2☆剑圣 神无雪", "菁英", "火属性", "亚人", "攻击者", "美乳", "中体型", "越战越强", "削弱"],
       ["2☆妖狐 静", "菁英", "水属性", "美乳", "妨碍者", "亚人", "小体型", "削弱", "干扰"],
-      ["2☆大将军 朱诺安", "菁英", "暗属性", "人类", "攻击者", "巨乳", "中体型", "输出", "支援"],
+      ["2☆大将军 朱诺安", "菁英", "闇属性", "人类", "攻击者", "巨乳", "中体型", "输出", "支援"],
       ["2☆天才女军师 布兰妮", "菁英", "光属性", "人类", "妨碍者", "美乳", "中体型", "群体攻击", "削弱", "爆发力", "支援"],
       ["2☆史莱姆女王 娜芙拉拉", "菁英", "风属性", "魔族", "守护者", "巨乳", "中体型", "保护", "防御", "生存力", "回复"],
       ["2☆魔法少女 托特拉(收集中)" , "菁英", "光属性", "攻击者", "人类", "爆发力", "美乳", "削弱", "输出"],
@@ -386,18 +458,18 @@
       ["1☆美人鱼 玛莲", "水属性", "治疗者", "亚人", "美乳", "中体型", "回复"],
       ["1☆犬人族 朵拉", "风属性", "守护者", "亚人", "美乳", "保护", "生存力", "中体型", "防御"],
       ["1☆双蛇军团护士长 艾琳", "光属性", "治疗者", "人类", "巨乳", "中体型", "回复"],
-      ["1☆魅魔 撒芭丝", "暗属性", "妨碍者", "魔族", "美乳", "干扰", "削弱", "中体型"],
-      ["1☆暗黑精灵 索拉卡", "暗属性", "妨碍者", "亚人", "中体型", "削弱", "美乳"],
+      ["1☆魅魔 撒芭丝", "闇属性", "妨碍者", "魔族", "美乳", "干扰", "削弱", "中体型"],
+      ["1☆闇黑精灵 索拉卡", "闇属性", "妨碍者", "亚人", "中体型", "削弱", "美乳"],
 
       ["0☆法斯帝国法师 佩托拉", "光属性", "攻击者", "人类", "贫乳", "中体型", "群体攻击", "输出", "士兵"],
       ["0☆矮人战士 可儿", "水属性", "攻击者", "亚人", "贫乳", "小体型", "输出", "爆发力", "士兵"],
       ["0☆精灵射手 奥菈", "风属性", "攻击者", "亚人", "美乳", "中体型", "输出", "士兵"],
-      ["0☆魔族法师 玛努艾拉", "暗属性", "攻击者", "中体型", "魔族", "美乳", "输出", "士兵"],
+      ["0☆魔族法师 玛努艾拉", "闇属性", "攻击者", "中体型", "魔族", "美乳", "输出", "士兵"],
       ["0☆烈日国武士 桔梗", "火属性", "妨碍者", "人类", "美乳", "中体型", "削弱", "士兵"],
       ["0☆蛇女 拉米亚", "火属性", "妨碍者", "美乳", "中体型", "削弱", "干扰", "士兵"],
       ["0☆史莱姆娘 萝尔", "水属性", "妨碍者", "魔族", "美乳", "小体型", "削弱", "生存力", "士兵", "回复"],
       ["0☆鸟身女妖 哈比", "风属性", "妨碍者", "魔族", "美乳", "小体型", "干扰", "士兵"],
-      ["0☆法斯帝国士兵 赛莲", "暗属性", "守护者", "人类", "美乳", "中体型", "保护", "防御", "士兵"],
+      ["0☆法斯帝国士兵 赛莲", "闇属性", "守护者", "人类", "美乳", "中体型", "保护", "防御", "士兵"],
       ["0☆牛女 米诺", "风属性", "守护者", "亚人", "巨乳", "中体型", "干扰", "保护", "防御", "生存力", "士兵"],
       ["0☆魔族战士 芙蕾", "光属性", "守护者", "魔族", "美乳", "中体型", "保护", "士兵", "防御"],
       ["0☆圣光骑士 玛蒂娜", "光属性", "守护者", "人类", "美乳", "中体型", "保护", "生存力", "防御", "士兵"],
@@ -412,26 +484,10 @@
       ["0☆福音天使(收集中)", "水属性", "治疗者", "士兵", "亚人(?)"],
     ]
 
-    function getDevice() {
-      var agent = navigator.userAgent.toLowerCase();
-      var result = {
-        device: function () {
-          if (/windows/.test(agent)) {
-            var $body = document.getElementById('body')
-            $body.classList.add('pc-style');
-            return 'windows pc';
-          } else {
-            return 'other';
-          }
-        }(),
-      };
-      return result;
-    }
-
 var propheticWords = ["中体型,亚人,削弱,回击,领袖",
 "中体型,回复,输出,妨碍者,美乳",
 "中体型,小体型,美乳,火属性,守护者",
-"中体型,暗属性,回复,守护者,光属性",
+"中体型,闇属性,回复,守护者,光属性",
 "中体型,水属性,治疗者,攻击者,亚人",
 "中体型,风属性,士兵,亚人,防御",
 "亚人,攻击者,风属性,生存力,保护",
@@ -445,15 +501,15 @@ var propheticWords = ["中体型,亚人,削弱,回击,领袖",
 "人类,治疗者,越战越强,群体攻击,干扰",
 "人类,爆发力,群体攻击,保护,小体型",
 "人类,群体攻击,生存力,治疗者,亚人",
-"保护,攻击者,输出,光属性,暗属性",
-"保护,暗属性,越战越强,贫乳,守护者",
-"光属性,保护,暗属性,贫乳,防御",
+"保护,攻击者,输出,光属性,闇属性",
+"保护,闇属性,越战越强,贫乳,守护者",
+"光属性,保护,闇属性,贫乳,防御",
 "光属性,攻击者,贫乳,士兵,小体型",
-"削弱,妨碍者,暗属性,人类,生存力",
+"削弱,妨碍者,闇属性,人类,生存力",
 "削弱,巨乳,亚人,魔族,回复",
 "回击,支援,辅助者,领袖,光属性",
 "回复,中体型,人类,贫乳,守护者",
-"回复,亚人,暗属性,美乳,风属性",
+"回复,亚人,闇属性,美乳,风属性",
 "回复,巨乳,人类,输出,干扰",
 "回复,干扰,小体型,水属性,群体攻击",
 "回复,攻击者,治疗者,贫乳,中体型",
@@ -468,32 +524,32 @@ var propheticWords = ["中体型,亚人,削弱,回击,领袖",
 "守护者,攻击者,中体型,生存力,风属性",
 "守护者,治疗者,风属性,群体攻击,巨乳",
 "小体型,回复,防御,妨碍者,火属性",
-"巨乳,光属性,士兵,暗属性,越战越强",
+"巨乳,光属性,士兵,闇属性,越战越强",
 "巨乳,守护者,小体型,输出,攻击者",
 "巨乳,干扰,魔族,贫乳,群体攻击",
-"干扰,光属性,治疗者,生存力,暗属性",
+"干扰,光属性,治疗者,生存力,闇属性",
 "干扰,妨碍者,支援,小体型,守护者",
-"干扰,巨乳,暗属性,风属性,群体攻击",
+"干扰,巨乳,闇属性,风属性,群体攻击",
 "支援,治疗者,妨碍者,小体型,辅助者",
 "攻击者,保护,爆发力,小体型,输出",
 "攻击者,干扰,守护者,防御,光属性",
 "攻击者,生存力,越战越强,守护者,小体型",
 "攻击者,防御,治疗者,群体攻击,输出",
 "攻击者,魔族,人类,中体型,干扰",
-"暗属性,回复,输出,中体型,妨碍者",
-"暗属性,攻击者,保护,光属性,士兵",
-"暗属性,水属性,妨碍者,生存力,输出",
-"暗属性,火属性,削弱,支援,魔族",
-"暗属性,生存力,保护,妨碍者,小体型",
-"暗属性,生存力,水属性,输出,风属性",
-"暗属性,美乳,回复,魔族,贫乳",
-"暗属性,美乳,小体型,防御,贫乳",
-"暗属性,贫乳,保护,魔族,治疗者",
+"闇属性,回复,输出,中体型,妨碍者",
+"闇属性,攻击者,保护,光属性,士兵",
+"闇属性,水属性,妨碍者,生存力,输出",
+"闇属性,火属性,削弱,支援,魔族",
+"闇属性,生存力,保护,妨碍者,小体型",
+"闇属性,生存力,水属性,输出,风属性",
+"闇属性,美乳,回复,魔族,贫乳",
+"闇属性,美乳,小体型,防御,贫乳",
+"闇属性,贫乳,保护,魔族,治疗者",
 "水属性,回复,治疗者,贫乳,光属性",
 "火属性,保护,守护者,士兵,生存力",
 "火属性,群体攻击,小体型,魔族,防御",
 "火属性,贫乳,输出,干扰,光属性",
-"爆发力,暗属性,群体攻击,妨碍者,人类",
+"爆发力,闇属性,群体攻击,妨碍者,人类",
 "生存力,亚人,守护者,治疗者,削弱",
 "生存力,人类,魔族,妨碍者,水属性",
 "生存力,守护者,防御,攻击者,风属性",
@@ -502,13 +558,13 @@ var propheticWords = ["中体型,亚人,削弱,回击,领袖",
 "生存力,贫乳,小体型,输出,魔族",
 "美乳,人类,中体型,水属性,魔族",
 "美乳,治疗者,防御,水属性,爆发力",
-"群体攻击,中体型,暗属性,巨乳,保护",
-"群体攻击,攻击者,输出,暗属性,水属性",
-"群体攻击,魔族,暗属性,光属性,治疗者",
+"群体攻击,中体型,闇属性,巨乳,保护",
+"群体攻击,攻击者,输出,闇属性,水属性",
+"群体攻击,魔族,闇属性,光属性,治疗者",
 "菁英,光属性,回复,人类,治疗者",
 "贫乳,中体型,防御,美乳,小体型",
 "贫乳,人类,干扰,魔族,水属性",
-"贫乳,士兵,巨乳,光属性,暗属性",
+"贫乳,士兵,巨乳,光属性,闇属性",
 "贫乳,攻击者,守护者,治疗者,火属性",
 "贫乳,攻击者,生存力,美乳,输出",
 "贫乳,水属性,攻击者,光属性,亚人",
@@ -519,35 +575,41 @@ var propheticWords = ["中体型,亚人,削弱,回击,领袖",
 "输出,保护,守护者,治疗者,群体攻击",
 "输出,妨碍者,治疗者,回复,风属性",
 "输出,干扰,魔族,风属性,美乳",
-"输出,爆发力,守护者,火属性,暗属性",
+"输出,爆发力,守护者,火属性,闇属性",
 "防御,亚人,火属性,守护者,输出",
 "防御,守护者,人类,攻击者,火属性",
-"防御,干扰,魔族,风属性,暗属性",
+"防御,干扰,魔族,风属性,闇属性",
 "防御,群体攻击,守护者,回复,风属性",
 "领袖,爆发力,亚人,回复,治疗者",   //新的
 "风属性,回复,水属性,攻击者,越战越强",
-"风属性,暗属性,守护者,治疗者,火属性",
+"风属性,闇属性,守护者,治疗者,火属性",
 "魔族,中体型,小体型,水属性,输出",
 "魔族,亚人,风属性,守护者,生存力",
 "魔族,人类,输出,妨碍者,中体型",
-"魔族,保护,暗属性,火属性,美乳",
+"魔族,保护,闇属性,火属性,美乳",
 "魔族,妨碍者,水属性,攻击者,生存力",
-"领袖,攻击者,爆发力,暗属性,治疗者",
-"巨乳,中体型,攻击者,人类,保护",
-"人类,菁英,水属性,亚人,群体攻击",  //下面都是新的
+"领袖,攻击者,爆发力,闇属性,治疗者",
+"巨乳,中体型,攻击者,人类,保护",//下面都是新的
+"人类,菁英,水属性,亚人,群体攻击",  
 "守护者,爆发力,小体型,中体型,攻击者",
 "中体型,群体攻击,输出,贫乳,越战越强",
-"美乳,暗属性,群体攻击,贫乳,妨碍者",
+"美乳,闇属性,群体攻击,贫乳,妨碍者",
 "干扰,攻击者,群体攻击,越战越强,守护者",
 "干扰,小体型,风属性,爆发力,越战越强",
-"保护,菁英,群体攻击,防御,风属性"];
+"保护,菁英,群体攻击,防御,风属性",
+"回复,攻击者,魔族,群体攻击,治疗者",
+"保护,小体型,回复,守护者,亚人",
+"输出,群体攻击,巨乳,辅助者,美乳"];
 
-////<body style="background:rgb(216, 243, 215)" id="body">
-  </script>
+//<body style="background:rgb(221, 241, 220)" id="body">
 
+</script>
+<script type="text/javascript" language="javascript" src="transform.js"></script>
 <body style="background:rgb(230, 230, 255)" id="body">
   <div id="center_box">
-    <h1 style="display: inline;">全境征才计算器 3.5 by 小r</h1><small>邀请码 USHL2U</small></br>
+    <h1 style="display: inline;">全境征才计算器 3.6 by 小r</h1><small>邀请码 USHL2U</small> 
+    <button type="button" id="langSwitcher" class="btn_language" onclick="switchST()">繁简切换</button>
+    </br>
 
     <button type="button" class='btn_normal btn'>攻击者</button>
     <button type="button" class='btn_normal btn'>守护者</button>
@@ -583,7 +645,7 @@ var propheticWords = ["中体型,亚人,削弱,回击,领袖",
     <button type="button" class='btn_normal btn'>火属性</button>
     <button type="button" class='btn_normal btn'>风属性</button>
     <button type="button" class='btn_normal btn'>光属性</button>
-    <button type="button" class='btn_normal btn'>暗属性</button>
+    <button type="button" class='btn_normal btn'>闇属性</button>
     <br>
     <button type="button" class='btn_normal btn'>领袖</button>
     <button type="button" class='btn_normal btn'>菁英</button>
@@ -602,10 +664,17 @@ var propheticWords = ["中体型,亚人,削弱,回击,领袖",
       <tbody id="tbMain"></tbody>
     </table>
 
-    <div id="foobar">
+    <div id="anotation">
       <font color="red"></color><h1>新版领袖是橙色的，记得选中！！！拉满9小时！！！</h1></font>
       我已经收到3起没选领袖的惨案了</br>
+      3.6 一些细碎的更新</br>
+      注意到一些鬼畜用户一行只能显示2个按钮，并不知道原因但是我尝试进行了简单的修复（指缩小按钮间距）</br>
+      繁简转换按钮</br>
+      之前是需要3秒内选中3个才会触发连击，感觉有点怪我取消了3秒的条件</br>
+      繁简切换测试中，可能会有bug</br>
       <h1>3.5 计算器词缀更新中</h1>
+      目前需要 美乳+爆发力，有概率出SR。目前已经出了一个SR了，希望有更多实锤<br/>
+      天使究竟是不是亚人？需要实锤<br/>
       已确定：<br/>
       食梦：亚人 削弱 贫乳 爆发力划掉后出了一个，大概率没有爆发力，先去掉了<br/>
       大天使：支援<br/>
@@ -621,8 +690,9 @@ var propheticWords = ["中体型,亚人,削弱,回击,领袖",
       (3) 对于SSR SR 我都尽量猜了大量词条，如果你觉得我还有没加的，同样反馈给我</br>
       对于R卡，我不加入任何不确定的词条，以免污染了SR的必出词条。如果你出货了新R卡，且这个词条网页没有标记，也请反馈给我</br>
       (4) 因为已经有国内站点了，且接下来更新极快，离线版短期内不会更新</br>
-    </br>
+
       对于无法翻墙的玩家 提供了一个国内地址，需要的记得保存 <a href="http://47.99.93.37/">http://47.99.93.37/</a></br>
+    </br>
 
       其他更新：为不同版本的主页背景更换了不同的颜色,微调词缀位置</br>
       3.2 由喵汇报 为剑圣添加了美乳-越战越强词条</br>
