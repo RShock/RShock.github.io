@@ -28,6 +28,7 @@
     .btn_normal {
       color: rgb(80, 80, 109);
       background-image: linear-gradient(rgb(255, 255, 255), rgb(240, 240, 240))
+      
     }
 
     .btn_language {
@@ -43,20 +44,42 @@
 
     .btn_hint {
       color: rgb(80, 80, 109);
-      background-image: linear-gradient(rgb(255, 255, 255), rgb(151, 191, 211))
+      background-image: linear-gradient(rgb(255, 255, 255), rgb(240, 240, 240), 
+      rgb(151, 191, 211), rgb(74, 163, 209));
+      background-size: 100% 300%;
+      animation: normal2hint 0.15s ease 1;
+      background-position: 0% 45%;
     }
 
     .btn_clicked {
       color: white;
-      background-image: linear-gradient(rgb(82, 179, 222), rgb(74, 163, 209));
-      animation: blink 0.4s 1;
+      background-image: linear-gradient(rgb(255, 255, 255), rgb(240, 240, 240), 
+      rgb(151, 191, 211), rgb(74, 163, 209));
+      background-size: 100% 300%;
+      animation: blink 0.3s ease 1;
+      background-position: 0% 95%;
     }
 
     /* 点击按钮后的闪烁动画（有点丑） */
     @keyframes blink
     {
-    0% { background-image: linear-gradient(rgb(255, 255, 255), rgb(151, 191, 211))}
-    100% { background-image: linear-gradient(rgb(82, 179, 222), rgb(74, 163, 209)) }
+      0% {
+        color: rgb(80, 80, 109);
+        background-position: 0% 66%;
+      }
+      100% {
+        color: white;
+        background-position: 0% 95%;
+      }
+    }
+
+    @keyframes normal2hint {
+      0% {
+        background-position: 0% 0%;
+      }
+      100% {
+        background-position: 0% 45%;
+      }
     }
 
     .btn_resetAllTags {
@@ -280,33 +303,6 @@ function getQueryVariable(variable)
       };
     }
 
-    function redrawTable() {
-      var tbody = document.getElementById('tbMain');
-      var trs = document.getElementsByTagName("tr");
-      for (var i = trs.length - 1; i > 0; i--) {
-        tbody.deleteRow(0);
-      }
-      for (var i = 0; i < ans.length; i++) {
-        var trow = getDataRow(ans[i]);
-        tbody.appendChild(trow);
-      }
-    }
-
-    function getDataRow(data) {
-      var row = document.createElement('tr');
-
-      var tagCell = document.createElement('td');
-      tagCell.innerHTML = data[0].tags;
-      row.appendChild(tagCell);
-
-      var nameCell = document.createElement('td');
-      var value = convertCharaDataToColorfulString(data);
-      nameCell.innerHTML = value;
-      row.appendChild(nameCell);
-
-      return row;
-    }
-
     function resetAllTags() {
       console.log('resetAllTags');
       var arr = document.getElementsByClassName('btn_clicked btn');
@@ -401,6 +397,34 @@ function getQueryVariable(variable)
     }
 
 /********************************计算结果填充代码************************************/
+
+function redrawTable() {
+  var tbody = document.getElementById('tbMain');
+  var trs = document.getElementsByTagName("tr");
+  for (var i = trs.length - 1; i > 0; i--) {
+    tbody.deleteRow(0);
+  }
+  for (var i = 0; i < ans.length; i++) {
+    var trow = getDataRow(ans[i]);
+    tbody.appendChild(trow);
+  }
+}
+
+function getDataRow(data) {
+  var row = document.createElement('tr');
+
+  var tagCell = document.createElement('td');
+  tagCell.innerHTML = data[0].tags.join('<br/>');
+  row.appendChild(tagCell);
+
+  var nameCell = document.createElement('td');
+  var value = convertCharaDataToColorfulString(data);
+  nameCell.innerHTML = value;
+  row.appendChild(nameCell);
+
+  return row;
+}
+
 function convertCharaDataToColorfulString(data) {
       var value = "";
       for (var i = 0; i < data.length; i++) {
@@ -438,7 +462,7 @@ function convertCharaDataToColorfulString(data) {
       ["3☆煌星 妲斯艾菲娜", "闇属性", "辅助者", "领袖", "人类", "中体型", "贫乳", "支援"],
       ["3☆复生公主 千鹤", "风属性", "攻击者", "领袖", "爆发力", "输出", "中体型(?)", "魔族"],
       ["3☆天使长 圣米勒", "光属性", "攻击者" , "领袖", "亚人(?)", "支援", "输出(?)", "爆发力(?)"],
-      ["3☆千年血族 洛缇亚(收集中)", "闇属性", "攻击者", "魔族", "领袖", "回复(?)", "巨乳(?)", "输出(?)", "爆发力", "生存力(?)"],
+      ["3☆千年血族 洛缇亚(收集中)", "闇属性", "攻击者", "魔族", "领袖", "巨乳(?)", "输出", "爆发力"],
       ["3☆食梦 阿尔蒂雅(收集中)", "闇属性", "妨碍者", "亚人", "领袖", "贫乳", "干扰(?)", "削弱", "支援(?)"],
 
       ["2☆魔管家 艾可", "菁英", "闇属性", "魔族", "辅助者", "中体型", "美乳", "支援"],
@@ -480,8 +504,8 @@ function convertCharaDataToColorfulString(data) {
       ["0☆法斯菁英近卫 安娜", "火属性", "守护者", "人类", "中体型", "防御", "士兵", "保护", "美乳"],
       ["0☆法斯高阶法师 诺诺可", "水属性", "攻击者", "人类", "中体型", "美乳", "输出", "士兵", "爆发力"],
       ["0☆法斯精锐骑士 布兰", "风属性", "攻击者", "人类", "中体型", "美乳", "输出", "防御", "士兵"],
-      ["0☆惩戒天使(收集中)", "水属性", "守护者", "士兵", "亚人(?)","生存力"],
-      ["0☆福音天使(收集中)", "水属性", "治疗者", "士兵", "亚人(?)"],
+      ["0☆惩戒天使(收集中)", "水属性", "守护者", "士兵","生存力"],
+      ["0☆福音天使(收集中)", "水属性", "治疗者", "士兵"],
     ]
 
 var propheticWords = ["中体型,亚人,削弱,回击,领袖",
@@ -600,7 +624,11 @@ var propheticWords = ["中体型,亚人,削弱,回击,领袖",
 "回复,攻击者,魔族,群体攻击,治疗者",
 "保护,小体型,回复,守护者,亚人",
 "输出,群体攻击,巨乳,辅助者,美乳",
-"火属性,巨乳,越战越强,生存力,群体攻击"];
+"火属性,巨乳,越战越强,生存力,群体攻击",
+"妨碍者,领袖,魔族,输出,火属性",
+"群体攻击,妨碍者,回复,人类,守护者",
+"保护,光属性,越战越强,干扰,人类"
+];
 
 //<body style="background:rgb(221, 241, 220)" id="body">
 
@@ -608,9 +636,9 @@ var propheticWords = ["中体型,亚人,削弱,回击,领袖",
 <script type="text/javascript" language="javascript" src="transform.js"></script>
 <body style="background:rgb(230, 230, 255)" id="body">
   <div id="center_box">
-    <h1 style="display: inline;">全境征才计算器 3.6 by 小r</h1><small>邀请码 USHL2U</small> 
+    <h1 style="display: inline;">全境征才计算器 3.7 by 小r</h1><small>邀请码 USHL2U</small> 
     <button type="button" id="langSwitcher" class="btn_language" onclick="switchST()">繁简切换</button>
-    </br>
+    <br/>
 
     <button type="button" class='btn_normal btn'>攻击者</button>
     <button type="button" class='btn_normal btn'>守护者</button>
@@ -666,13 +694,14 @@ var propheticWords = ["中体型,亚人,削弱,回击,领袖",
     </table>
 
     <div id="anotation">
-      <font color="red"></color><h1>新版领袖是橙色的，记得选中！！！拉满9小时！！！</h1></font>
-      我已经收到3起没选领袖的惨案了</br>
-      3.6 一些细碎的更新</br>
-      注意到一些鬼畜用户一行只能显示2个按钮，并不知道原因但是我尝试进行了简单的修复（指缩小按钮间距）</br>
-      繁简转换按钮</br>
-      之前是需要3秒内选中3个才会触发连击，感觉有点怪我取消了3秒的条件</br>
-      繁简切换测试中，可能会有bug</br>
+      <font color="red"><h1>新版领袖是橙色的，记得选中！！！拉满9小时！！！</h1></font>
+      我已经收到3起没选领袖的惨案了<br/>
+      3.7 美化<br/>
+      3.6 一些细碎的更新<br/>
+      注意到一些鬼畜用户一行只能显示2个按钮，并不知道原因但是我尝试进行了简单的修复（指缩小按钮间距）<br/>
+      繁简转换按钮<br/>
+      之前是需要3秒内选中3个才会触发连击，感觉有点怪我取消了3秒的条件<br/>
+      繁简切换测试中，可能会有bug<br/>
       <h1>3.5 计算器词缀更新中</h1>
       目前需要 美乳+爆发力，有概率出SR。目前已经出了一个SR了，希望有更多实锤<br/>
       天使究竟是不是亚人？需要实锤<br/>
@@ -683,21 +712,21 @@ var propheticWords = ["中体型,亚人,削弱,回击,领袖",
       托特拉：美乳 削弱 输出  爆发力划掉了2次 越战越强划掉了3次 已经删除越战越强  美乳+爆发力出货1次(概率很低)，先加上爆发力后续再验证<br/>
       惩戒天使：生存力 没有防御 没有保护<br/>
       <b></b>
-      <h1>3.3 新角色会在29日后加入，以下内容较为重要</br></h1>
-      (1) 所有角色词条都是玩家猜出来的，更新初期，词条全部未知，试验词条有成本，请自愿参加或等待。</br>
+      <h1>3.3 新角色会在29日后加入，以下内容较为重要<br/></h1>
+      (1) 所有角色词条都是玩家猜出来的，更新初期，词条全部未知，试验词条有成本，请自愿参加或等待。<br/>
       (2) 我已经提前加入了词条。这些词条是我猜的，所以以问号标记，如果你选了该词条出货了，
-      请于天下布魔ma吧贴吧专楼反馈，我会把问号去掉，如果没出货，我会把词条去掉（被划掉的，需要有很多的人被划掉才能确认是真的没有）</br>
-      最好给出出货前和出货截图</br>
-      (3) 对于SSR SR 我都尽量猜了大量词条，如果你觉得我还有没加的，同样反馈给我</br>
-      对于R卡，我不加入任何不确定的词条，以免污染了SR的必出词条。如果你出货了新R卡，且这个词条网页没有标记，也请反馈给我</br>
-      (4) 因为已经有国内站点了，且接下来更新极快，离线版短期内不会更新</br>
+      请于天下布魔ma吧贴吧专楼反馈，我会把问号去掉，如果没出货，我会把词条去掉（被划掉的，需要有很多的人被划掉才能确认是真的没有）<br/>
+      最好给出出货前和出货截图<br/>
+      (3) 对于SSR SR 我都尽量猜了大量词条，如果你觉得我还有没加的，同样反馈给我<br/>
+      对于R卡，我不加入任何不确定的词条，以免污染了SR的必出词条。如果你出货了新R卡，且这个词条网页没有标记，也请反馈给我<br/>
+      (4) 因为已经有国内站点了，且接下来更新极快，离线版短期内不会更新<br/>
 
-      对于无法翻墙的玩家 提供了一个国内地址，需要的记得保存 <a href="http://47.99.93.37/">http://47.99.93.37/</a></br>
-    </br>
+      对于无法翻墙的玩家 提供了一个国内地址，需要的记得保存 <a href="http://47.99.93.37/">http://47.99.93.37/</a><br/>
+    <br/>
 
-      其他更新：为不同版本的主页背景更换了不同的颜色,微调词缀位置</br>
-      3.2 由喵汇报 为剑圣添加了美乳-越战越强词条</br>
-      之前的<a href="https://github.com/RShock/RShock.github.io/blob/master/update.md">更新日志</a></br>
+      其他更新：为不同版本的主页背景更换了不同的颜色,微调词缀位置<br/>
+      3.2 由喵汇报 为剑圣添加了美乳-越战越强词条<br/>
+      之前的<a href="https://github.com/RShock/RShock.github.io/blob/master/update.md">更新日志</a><br/>
       最好的游戏攻略 公益类初始号 代充 尽在<a href="http://tenkafuma.gamekee.com/">天下布魔中文维基wiki(已倒闭)</a>
     </div>
     <div hidden>如你所见本页面没有任何加密，因此请勿随意盗用本页面</div>
