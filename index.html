@@ -117,8 +117,6 @@
       border-bottom-right-radius: 10px;
     }
 
-    table 
-
     .pc-style {
       width: 80%;
       zoom: 0.55;
@@ -403,6 +401,7 @@ function getQueryVariable(variable)
 
 function redrawTable() {
   var tbody = document.getElementById('tbMain');
+  tbody.style.display="none";
   var trs = document.getElementsByTagName("tr");
   for (var i = trs.length - 1; i > 0; i--) {
     tbody.deleteRow(0);
@@ -411,6 +410,7 @@ function redrawTable() {
     var trow = getDataRow(ans[i]);
     tbody.appendChild(trow);
   }
+  tbody.style.display="";
 }
 
 function getDataRow(data) {
