@@ -131,7 +131,7 @@
       padding: 10px;
     }
   </style>
-  
+
   <script type="text/javascript">
     var tags = [];  //收集当前选中的tag
     var ans = [];   //收集最后的结果
@@ -141,7 +141,7 @@
       getDevice()
       initPropheticWords() //初始化词条预言系统
       initST()
-      
+
       var wordBtns = document.getElementsByClassName('btn_normal btn');
       for (var i = 0; i < wordBtns.length; i++) {
         wordBtns[i].className = 'btn_normal btn';
@@ -155,7 +155,7 @@
         }
       }
     }
-    
+
     function getDevice() {
       var agent = navigator.userAgent.toLowerCase();
       var result = {
@@ -176,91 +176,90 @@
       propheticWords = propheticWords.map(w => w.split(','));
     }
 
-/***********************************繁简转换相关代码**************************************/
-  function initST() {    
-    var lang = getQueryVariable("lang")
-    var lang2 = getCookie("tkbmLang")
-    if(lang=="T" || lang2=="T"){
-      s2t()
-      s2tSet(propheticWords)
-      s2tSet(dataset)
+    /***********************************繁简转换相关代码**************************************/
+    function initST() {
+      var lang = getQueryVariable("lang")
+      var lang2 = getCookie("tkbmLang")
+      if (lang == "T" || lang2 == "T") {
+        s2t()
+        s2tSet(propheticWords)
+        s2tSet(dataset)
+      }
     }
-  }
 
-function switchST() {
-  var lang = getQueryVariable("lang")
-  var lang2 = getCookie("tkbmLang")
-  if(lang=="T" || lang2=="T"){
-    addCookie("tkbmLang", "S", 999)
-    window.location.href=window.location.href.split('?')[0];
-  } else {
-    addCookie("tkbmLang", "T", 999)    
-    window.location.href=window.location.href.split('&')[0] + "?lang=T";
-  }
-}
+    function switchST() {
+      var lang = getQueryVariable("lang")
+      var lang2 = getCookie("tkbmLang")
+      if (lang == "T" || lang2 == "T") {
+        addCookie("tkbmLang", "S", 999)
+        window.location.href = window.location.href.split('?')[0];
+      } else {
+        addCookie("tkbmLang", "T", 999)
+        window.location.href = window.location.href.split('&')[0] + "?lang=T";
+      }
+    }
 
 
-/**********************************缓存相关代码***********************************/
-//写Cookie
-function addCookie(objName, objValue, objHours) {
-    var str = objName + "=" + escape(objValue); //编码
-    if (objHours > 0) {//为0时不设定过期时间，浏览器关闭时cookie自动消失
+    /**********************************缓存相关代码***********************************/
+    //写Cookie
+    function addCookie(objName, objValue, objHours) {
+      var str = objName + "=" + escape(objValue); //编码
+      if (objHours > 0) {//为0时不设定过期时间，浏览器关闭时cookie自动消失
         var date = new Date();
         var ms = objHours * 3600 * 1000;
         date.setTime(date.getTime() + ms);
         str += "; expires=" + date.toGMTString();
+      }
+      document.cookie = str;
     }
-    document.cookie = str;
-}
 
-//读Cookie
-function getCookie(objName) {//获取指定名称的cookie的值
-    var arrStr = document.cookie.split("; ");
-    for (var i = 0; i < arrStr.length; i++) {
+    //读Cookie
+    function getCookie(objName) {//获取指定名称的cookie的值
+      var arrStr = document.cookie.split("; ");
+      for (var i = 0; i < arrStr.length; i++) {
         var temp = arrStr[i].split("=");
         if (temp[0] == objName) return unescape(temp[1]);  //解码
+      }
+      return "";
     }
-    return "";
-}
 
-function getQueryVariable(variable)
-{
-       var query = window.location.search.substring(1);
-       var vars = query.split("&");
-       for (var i=0;i<vars.length;i++) {
-               var pair = vars[i].split("=");
-               if(pair[0] == variable){return pair[1];}
-       }
-       return(false);
-}
+    function getQueryVariable(variable) {
+      var query = window.location.search.substring(1);
+      var vars = query.split("&");
+      for (var i = 0; i < vars.length; i++) {
+        var pair = vars[i].split("=");
+        if (pair[0] == variable) { return pair[1]; }
+      }
+      return (false);
+    }
 
-/***********************************预言系统代码******************************************/
+    /***********************************预言系统代码******************************************/
     var time = 0;
     //预言系统 基于交互设计理念 为用户自动补全
     function propheticWord(tags) {
       btns = document.getElementsByClassName('btn_normal btn');
-      hintBtns =  document.getElementsByClassName('btn_hint btn');
+      hintBtns = document.getElementsByClassName('btn_hint btn');
       while (hintBtns.length != 0) {
         hintBtns[0].className = 'btn_normal btn';
       }
-      if(tags.length <= 4 && tags.length >= 1) {
+      if (tags.length <= 4 && tags.length >= 1) {
         matchWordPair = propheticWords.filter(words => {
           var sliceWords = words.slice(0, tags.length);
-          if(prefixIncludes(sliceWords, tags))
+          if (prefixIncludes(sliceWords, tags))
             return true;
         })
-        if(matchWordPair.length == 1 && tags.length >= 3){
-          for(var i=tags.length ; i<=5; i++){
-            enableWord(btns,hintBtns,matchWordPair[0][i]);
+        if (matchWordPair.length == 1 && tags.length >= 3) {
+          for (var i = tags.length; i <= 5; i++) {
+            enableWord(btns, hintBtns, matchWordPair[0][i]);
           }
         }
-        matchWordPair.forEach(words =>  hintWord(btns,words[tags.length]));
+        matchWordPair.forEach(words => hintWord(btns, words[tags.length]));
       }
     }
 
     function hintWord(btns, word) {
-      for(var i=0;i<btns.length;i++){
-        if(btns[i].innerText ==  word) {
+      for (var i = 0; i < btns.length; i++) {
+        if (btns[i].innerText == word) {
           btns[i].className = 'btn_hint btn';
           break;
         }
@@ -268,14 +267,14 @@ function getQueryVariable(variable)
     }
 
     function enableWord(btn, hintBtns, word) {
-      for(var i=0;i<btns.length;i++){
-        if(btns[i].innerText ==  word) {
+      for (var i = 0; i < btns.length; i++) {
+        if (btns[i].innerText == word) {
           btns[i].className = 'btn_clicked btn';
           break;
         }
       }
-      for(var i=0;i<hintBtns.length;i++){
-        if(hintBtns[i].innerText ==  word) {
+      for (var i = 0; i < hintBtns.length; i++) {
+        if (hintBtns[i].innerText == word) {
           hintBtns[i].className = 'btn_clicked btn';
           break;
         }
@@ -283,7 +282,7 @@ function getQueryVariable(variable)
       searchAndShow();
     }
 
-/***********************************搜索系统代码******************************************/
+    /***********************************搜索系统代码******************************************/
     function searchAndShow() {
       collectSelectedTags();
       propheticWord(tags);
@@ -297,8 +296,8 @@ function getQueryVariable(variable)
     function collectSelectedTags() {
       tags = [];
       var allBtns = document.getElementsByClassName('btn');
-      for(btn of allBtns) {
-        if(btn.className == 'btn_clicked btn'){
+      for (btn of allBtns) {
+        if (btn.className == 'btn_clicked btn') {
           tags.push(btn.innerHTML);
         }
       };
@@ -350,7 +349,7 @@ function getQueryVariable(variable)
       var isLV3 = arr2.includes("领袖");
       var isLV2 = arr2.includes("菁英");
       if (!isLV3 && arr1.includes("领袖")) {
-          return false;
+        return false;
       }
       return prefixIncludes(arr1, arr2);
     }
@@ -365,16 +364,16 @@ function getQueryVariable(variable)
       var minLV = data[data.length - 1].value[0].substr(0, 1);
       var maxLV = data[0].value[0].substr(0, 1);
       var tagCount = data[0].tags.length;
-      return minLV + maxLV + (100 - data.length) + (10 -tagCount);
+      return minLV + maxLV + (100 - data.length) + (10 - tagCount);
     }
-    
+
     function initDataSet() {
       dataset.forEach(
-        chara => {for (var i=0; i < chara.length; i++) {chara[i] = chara[i].replace(/\(.*\)/, "") }}
+        chara => { for (var i = 0; i < chara.length; i++) { chara[i] = chara[i].replace(/\(.*\)/, "") } }
       )
     }
 
-    function prefixIncludes(arr1, arr2){
+    function prefixIncludes(arr1, arr2) {
       return arr2.filter(item2 => arr1.find(item1 => item1.startsWith(item2))).length == arr2.length;
     }
 
@@ -382,14 +381,14 @@ function getQueryVariable(variable)
       resetAllTags()
       var charaData;
       dataset.forEach(chara => {
-        if(chara[0] == charaName){
+        if (chara[0] == charaName) {
           charaData = chara;
         }
       });
       var allBtns = document.getElementsByClassName('btn');
-      for(btn of allBtns) {
-        if(btn.innerHTML == "菁英")continue;
-        if(charaData.find(tag => tag.startsWith(btn.innerHTML))){
+      for (btn of allBtns) {
+        if (btn.innerHTML == "菁英") continue;
+        if (charaData.find(tag => tag.startsWith(btn.innerHTML))) {
           btn.className = 'btn_clicked btn';
         }
       };
@@ -397,38 +396,38 @@ function getQueryVariable(variable)
       searchAndShow();
     }
 
-/********************************计算结果填充代码************************************/
+    /********************************计算结果填充代码************************************/
 
-function redrawTable() {
-  var tbody = document.getElementById('tbMain');
-  tbody.style.display="none";
-  var trs = document.getElementsByTagName("tr");
-  for (var i = trs.length - 1; i > 0; i--) {
-    tbody.deleteRow(0);
-  }
-  for (var i = 0; i < ans.length; i++) {
-    var trow = getDataRow(ans[i]);
-    tbody.appendChild(trow);
-  }
-  tbody.style.display="";
-}
+    function redrawTable() {
+      var tbody = document.getElementById('tbMain');
+      tbody.style.display = "none";
+      var trs = document.getElementsByTagName("tr");
+      for (var i = trs.length - 1; i > 0; i--) {
+        tbody.deleteRow(0);
+      }
+      for (var i = 0; i < ans.length; i++) {
+        var trow = getDataRow(ans[i]);
+        tbody.appendChild(trow);
+      }
+      tbody.style.display = "";
+    }
 
-function getDataRow(data) {
-  var row = document.createElement('tr');
+    function getDataRow(data) {
+      var row = document.createElement('tr');
 
-  var tagCell = document.createElement('td');
-  tagCell.innerHTML = data[0].tags.join('<br/>');
-  row.appendChild(tagCell);
+      var tagCell = document.createElement('td');
+      tagCell.innerHTML = data[0].tags.join('<br/>');
+      row.appendChild(tagCell);
 
-  var nameCell = document.createElement('td');
-  var value = convertCharaDataToColorfulString(data);
-  nameCell.innerHTML = value;
-  row.appendChild(nameCell);
+      var nameCell = document.createElement('td');
+      var value = convertCharaDataToColorfulString(data);
+      nameCell.innerHTML = value;
+      row.appendChild(nameCell);
 
-  return row;
-}
+      return row;
+    }
 
-function convertCharaDataToColorfulString(data) {
+    function convertCharaDataToColorfulString(data) {
       var value = "";
       for (var i = 0; i < data.length; i++) {
         value += "<div style=\"color:";
@@ -440,19 +439,19 @@ function convertCharaDataToColorfulString(data) {
           value += "#808080\">";
         var data2 = data[i].value[1];
         for (var j = 2; j < data[i].value.length; j++) {
-          if(data[i].value[j].includes("(")){
+          if (data[i].value[j].includes("(")) {
             data2 += ", <font color=\"#0066CC\">" + data[i].value[j] + "</font>";
           } else {
             data2 += ", " + data[i].value[j];
           }
         }
-        value += "<u style=\"cursor:pointer\" onClick=\"lockCharaClick('"+data[i].value[0]+"')\">" + 
-                  data[i].value[0] + "</u> ("+ data2 + ")</div>"
+        value += "<u style=\"cursor:pointer\" onClick=\"lockCharaClick('" + data[i].value[0] + "')\">" +
+          data[i].value[0] + "</u> (" + data2 + ")</div>"
       }
       return value;
     }
 
-/********************************数据集合**********************************************/
+    /********************************数据集合**********************************************/
     var dataset = [
       ["3☆魔王 巴尔", "领袖", "火属性", "魔族", "中体型", "攻击者", "爆发力", "输出"],
       ["3☆魔王 撒旦", "领袖", "闇属性", "魔族", "中体型", "守护者", "生存力", "回击", "防御"],
@@ -464,7 +463,7 @@ function convertCharaDataToColorfulString(data) {
       ["3☆KS-VIII 魔人偶", "闇属性", "攻击者", "领袖", "爆发力", "输出", "中体型"],
       ["3☆煌星 妲斯艾菲娜", "闇属性", "辅助者", "领袖", "人类", "中体型", "贫乳", "支援"],
       ["3☆复生公主 千鹤", "风属性", "攻击者", "领袖", "爆发力", "输出", "中体型(?)", "魔族"],
-      ["3☆天使长 圣米勒", "光属性", "攻击者" , "领袖", "亚人(?)", "支援", "输出(?)", "爆发力(?)"],
+      ["3☆天使长 圣米勒", "光属性", "攻击者", "领袖", "亚人(?)", "支援", "输出(?)", "爆发力(?)"],
       ["3☆千年血族 洛缇亚(收集中)", "闇属性", "攻击者", "魔族", "领袖", "巨乳(?)", "输出", "爆发力"],
       ["3☆食梦 阿尔蒂雅(收集中)", "闇属性", "妨碍者", "亚人", "领袖", "贫乳", "干扰(?)", "削弱", "支援(?)"],
 
@@ -477,7 +476,7 @@ function convertCharaDataToColorfulString(data) {
       ["2☆大将军 朱诺安", "菁英", "闇属性", "人类", "攻击者", "巨乳", "中体型", "输出", "支援"],
       ["2☆天才女军师 布兰妮", "菁英", "光属性", "人类", "妨碍者", "美乳", "中体型", "群体攻击", "削弱", "爆发力", "支援"],
       ["2☆史莱姆女王 娜芙拉拉", "菁英", "风属性", "魔族", "守护者", "巨乳", "中体型", "保护", "防御", "生存力", "回复"],
-      ["2☆魔法少女 托特拉(收集中)" , "菁英", "光属性", "攻击者", "人类", "爆发力", "美乳", "削弱", "输出"],
+      ["2☆魔法少女 托特拉(收集中)", "菁英", "光属性", "攻击者", "人类", "爆发力", "美乳", "削弱", "输出"],
 
       ["1☆流浪魔法师 尤依", "火属性", "攻击者", "人类", "巨乳", "小体型", "越战越强", "输出"],
       ["1☆龙女 伊维斯", "火属性", "攻击者", "亚人", "贫乳", "小体型", "越战越强", "群体攻击", "输出"],
@@ -507,141 +506,145 @@ function convertCharaDataToColorfulString(data) {
       ["0☆法斯菁英近卫 安娜", "火属性", "守护者", "人类", "中体型", "防御", "士兵", "保护", "美乳"],
       ["0☆法斯高阶法师 诺诺可", "水属性", "攻击者", "人类", "中体型", "美乳", "输出", "士兵", "爆发力"],
       ["0☆法斯精锐骑士 布兰", "风属性", "攻击者", "人类", "中体型", "美乳", "输出", "防御", "士兵"],
-      ["0☆惩戒天使(收集中)", "水属性", "守护者", "士兵","生存力"],
+      ["0☆惩戒天使(收集中)", "水属性", "守护者", "士兵", "生存力"],
       ["0☆福音天使(收集中)", "水属性", "治疗者", "士兵"],
     ]
 
-var propheticWords = ["中体型,亚人,削弱,回击,领袖",
-"中体型,回复,输出,妨碍者,美乳",
-"中体型,小体型,美乳,火属性,守护者",
-"中体型,闇属性,回复,守护者,光属性",
-"中体型,水属性,治疗者,攻击者,亚人",
-"中体型,风属性,士兵,亚人,防御",
-"亚人,攻击者,风属性,生存力,保护",
-"亚人,美乳,攻击者,小体型,中体型",
-"人类,回复,治疗者,小体型,攻击者",
-"人类,守护者,巨乳,保护,攻击者",
-"人类,守护者,生存力,干扰,群体攻击",
-"人类,守护者,领袖,水属性,贫乳",
-"人类,巨乳,群体攻击,防御,输出",
-"人类,攻击者,群体攻击,输出,风属性",
-"人类,治疗者,越战越强,群体攻击,干扰",
-"人类,爆发力,群体攻击,保护,小体型",
-"人类,群体攻击,生存力,治疗者,亚人",
-"保护,攻击者,输出,光属性,闇属性",
-"保护,闇属性,越战越强,贫乳,守护者",
-"光属性,保护,闇属性,贫乳,防御",
-"光属性,攻击者,贫乳,士兵,小体型",
-"削弱,妨碍者,闇属性,人类,生存力",
-"削弱,巨乳,亚人,魔族,回复",
-"回击,支援,辅助者,领袖,光属性",
-"回复,中体型,人类,贫乳,守护者",
-"回复,亚人,闇属性,美乳,风属性",
-"回复,巨乳,人类,输出,干扰",
-"回复,干扰,小体型,水属性,群体攻击",
-"回复,攻击者,治疗者,贫乳,中体型",
-"回复,攻击者,魔族,群体攻击,治疗者",
-"回复,魔族,亚人,小体型,水属性",
-"士兵,削弱,保护,输出,贫乳",
-"士兵,妨碍者,削弱,魔族,守护者",
-"士兵,干扰,人类,群体攻击,回复",
-"妨碍者,干扰,巨乳,士兵,治疗者",
-"妨碍者,攻击者,魔族,输出,贫乳",
-"守护者,妨碍者,魔族,贫乳,攻击者",
-"守护者,攻击者,中体型,生存力,风属性",
-"守护者,治疗者,风属性,群体攻击,巨乳",
-"小体型,回复,防御,妨碍者,火属性",
-"巨乳,光属性,士兵,闇属性,越战越强",
-"巨乳,守护者,小体型,输出,攻击者",
-"巨乳,干扰,魔族,贫乳,群体攻击",
-"干扰,光属性,治疗者,生存力,闇属性",
-"干扰,妨碍者,支援,小体型,守护者",
-"干扰,巨乳,闇属性,风属性,群体攻击",
-"支援,治疗者,妨碍者,小体型,辅助者",
-"攻击者,保护,爆发力,小体型,输出",
-"攻击者,干扰,守护者,防御,光属性",
-"攻击者,生存力,越战越强,守护者,小体型",
-"攻击者,防御,治疗者,群体攻击,输出",
-"攻击者,魔族,人类,中体型,干扰",
-"闇属性,回复,输出,中体型,妨碍者",
-"闇属性,攻击者,保护,光属性,士兵",
-"闇属性,水属性,妨碍者,生存力,输出",
-"闇属性,火属性,削弱,支援,魔族",
-"闇属性,生存力,保护,妨碍者,小体型",
-"闇属性,生存力,水属性,输出,风属性",
-"闇属性,美乳,回复,魔族,贫乳",
-"闇属性,美乳,小体型,防御,贫乳",
-"闇属性,贫乳,保护,魔族,治疗者",
-"水属性,回复,治疗者,贫乳,光属性",
-"火属性,保护,守护者,士兵,生存力",
-"火属性,群体攻击,小体型,魔族,防御",
-"火属性,贫乳,输出,干扰,光属性",
-"爆发力,闇属性,群体攻击,妨碍者,人类",
-"生存力,亚人,守护者,治疗者,削弱",
-"生存力,人类,魔族,妨碍者,水属性",
-"生存力,守护者,防御,攻击者,风属性",
-"生存力,小体型,治疗者,风属性,输出",
-"生存力,水属性,巨乳,魔族,回复",
-"生存力,贫乳,小体型,输出,魔族",
-"美乳,人类,中体型,水属性,魔族",
-"美乳,治疗者,防御,水属性,爆发力",
-"群体攻击,中体型,闇属性,巨乳,保护",
-"群体攻击,攻击者,输出,闇属性,水属性",
-"群体攻击,魔族,闇属性,光属性,治疗者",
-"菁英,光属性,回复,人类,治疗者",
-"贫乳,中体型,防御,美乳,小体型",
-"贫乳,人类,干扰,魔族,水属性",
-"贫乳,士兵,巨乳,光属性,闇属性",
-"贫乳,攻击者,守护者,治疗者,火属性",
-"贫乳,攻击者,生存力,美乳,输出",
-"贫乳,水属性,攻击者,光属性,亚人",
-"贫乳,治疗者,干扰,美乳,防御",
-"越战越强,人类,亚人,贫乳,士兵",
-"越战越强,防御,守护者,风属性,水属性",
-"辅助者,妨碍者,防御,攻击者,水属性",
-"输出,保护,守护者,治疗者,群体攻击",
-"输出,妨碍者,治疗者,回复,风属性",
-"输出,干扰,魔族,风属性,美乳",
-"输出,爆发力,守护者,火属性,闇属性",
-"防御,亚人,火属性,守护者,输出",
-"防御,守护者,人类,攻击者,火属性",
-"防御,干扰,魔族,风属性,闇属性",
-"防御,群体攻击,守护者,回复,风属性",
-"领袖,爆发力,亚人,回复,治疗者",   //新的
-"风属性,回复,水属性,攻击者,越战越强",
-"风属性,闇属性,守护者,治疗者,火属性",
-"魔族,中体型,小体型,水属性,输出",
-"魔族,亚人,风属性,守护者,生存力",
-"魔族,人类,输出,妨碍者,中体型",
-"魔族,保护,闇属性,火属性,美乳",
-"魔族,妨碍者,水属性,攻击者,生存力",
-"领袖,攻击者,爆发力,闇属性,治疗者",
-"巨乳,中体型,攻击者,人类,保护",//下面都是新的
-"人类,菁英,水属性,亚人,群体攻击",  
-"守护者,爆发力,小体型,中体型,攻击者",
-"中体型,群体攻击,输出,贫乳,越战越强",
-"美乳,闇属性,群体攻击,贫乳,妨碍者",
-"干扰,攻击者,群体攻击,越战越强,守护者",
-"干扰,小体型,风属性,爆发力,越战越强",
-"保护,菁英,群体攻击,防御,风属性",
-"回复,攻击者,魔族,群体攻击,治疗者",
-"保护,小体型,回复,守护者,亚人",
-"输出,群体攻击,巨乳,辅助者,美乳",
-"火属性,巨乳,越战越强,生存力,群体攻击",
-"妨碍者,领袖,魔族,输出,火属性",
-"群体攻击,妨碍者,回复,人类,守护者",
-"保护,光属性,越战越强,干扰,人类"
-];
+    var propheticWords = ["中体型,亚人,削弱,回击,领袖",
+      "中体型,回复,输出,妨碍者,美乳",
+      "中体型,小体型,美乳,火属性,守护者",
+      "中体型,闇属性,回复,守护者,光属性",
+      "中体型,水属性,治疗者,攻击者,亚人",
+      "中体型,风属性,士兵,亚人,防御",
+      "亚人,攻击者,风属性,生存力,保护",
+      "亚人,美乳,攻击者,小体型,中体型",
+      "人类,回复,治疗者,小体型,攻击者",
+      "人类,守护者,巨乳,保护,攻击者",
+      "人类,守护者,生存力,干扰,群体攻击",
+      "人类,守护者,领袖,水属性,贫乳",
+      "人类,巨乳,群体攻击,防御,输出",
+      "人类,攻击者,群体攻击,输出,风属性",
+      "人类,治疗者,越战越强,群体攻击,干扰",
+      "人类,爆发力,群体攻击,保护,小体型",
+      "人类,群体攻击,生存力,治疗者,亚人",
+      "保护,攻击者,输出,光属性,闇属性",
+      "保护,闇属性,越战越强,贫乳,守护者",
+      "光属性,保护,闇属性,贫乳,防御",
+      "光属性,攻击者,贫乳,士兵,小体型",
+      "削弱,妨碍者,闇属性,人类,生存力",
+      "削弱,巨乳,亚人,魔族,回复",
+      "回击,支援,辅助者,领袖,光属性",
+      "回复,中体型,人类,贫乳,守护者",
+      "回复,亚人,闇属性,美乳,风属性",
+      "回复,巨乳,人类,输出,干扰",
+      "回复,干扰,小体型,水属性,群体攻击",
+      "回复,攻击者,治疗者,贫乳,中体型",
+      "回复,攻击者,魔族,群体攻击,治疗者",
+      "回复,魔族,亚人,小体型,水属性",
+      "士兵,削弱,保护,输出,贫乳",
+      "士兵,妨碍者,削弱,魔族,守护者",
+      "士兵,干扰,人类,群体攻击,回复",
+      "妨碍者,干扰,巨乳,士兵,治疗者",
+      "妨碍者,攻击者,魔族,输出,贫乳",
+      "守护者,妨碍者,魔族,贫乳,攻击者",
+      "守护者,攻击者,中体型,生存力,风属性",
+      "守护者,治疗者,风属性,群体攻击,巨乳",
+      "小体型,回复,防御,妨碍者,火属性",
+      "巨乳,光属性,士兵,闇属性,越战越强",
+      "巨乳,守护者,小体型,输出,攻击者",
+      "巨乳,干扰,魔族,贫乳,群体攻击",
+      "干扰,光属性,治疗者,生存力,闇属性",
+      "干扰,妨碍者,支援,小体型,守护者",
+      "干扰,巨乳,闇属性,风属性,群体攻击",
+      "支援,治疗者,妨碍者,小体型,辅助者",
+      "攻击者,保护,爆发力,小体型,输出",
+      "攻击者,干扰,守护者,防御,光属性",
+      "攻击者,生存力,越战越强,守护者,小体型",
+      "攻击者,防御,治疗者,群体攻击,输出",
+      "攻击者,魔族,人类,中体型,干扰",
+      "闇属性,回复,输出,中体型,妨碍者",
+      "闇属性,攻击者,保护,光属性,士兵",
+      "闇属性,水属性,妨碍者,生存力,输出",
+      "闇属性,火属性,削弱,支援,魔族",
+      "闇属性,生存力,保护,妨碍者,小体型",
+      "闇属性,生存力,水属性,输出,风属性",
+      "闇属性,美乳,回复,魔族,贫乳",
+      "闇属性,美乳,小体型,防御,贫乳",
+      "闇属性,贫乳,保护,魔族,治疗者",
+      "水属性,回复,治疗者,贫乳,光属性",
+      "火属性,保护,守护者,士兵,生存力",
+      "火属性,群体攻击,小体型,魔族,防御",
+      "火属性,贫乳,输出,干扰,光属性",
+      "爆发力,闇属性,群体攻击,妨碍者,人类",
+      "生存力,亚人,守护者,治疗者,削弱",
+      "生存力,人类,魔族,妨碍者,水属性",
+      "生存力,守护者,防御,攻击者,风属性",
+      "生存力,小体型,治疗者,风属性,输出",
+      "生存力,水属性,巨乳,魔族,回复",
+      "生存力,贫乳,小体型,输出,魔族",
+      "美乳,人类,中体型,水属性,魔族",
+      "美乳,治疗者,防御,水属性,爆发力",
+      "群体攻击,中体型,闇属性,巨乳,保护",
+      "群体攻击,攻击者,输出,闇属性,水属性",
+      "群体攻击,魔族,闇属性,光属性,治疗者",
+      "菁英,光属性,回复,人类,治疗者",
+      "贫乳,中体型,防御,美乳,小体型",
+      "贫乳,人类,干扰,魔族,水属性",
+      "贫乳,士兵,巨乳,光属性,闇属性",
+      "贫乳,攻击者,守护者,治疗者,火属性",
+      "贫乳,攻击者,生存力,美乳,输出",
+      "贫乳,水属性,攻击者,光属性,亚人",
+      "贫乳,治疗者,干扰,美乳,防御",
+      "越战越强,人类,亚人,贫乳,士兵",
+      "越战越强,防御,守护者,风属性,水属性",
+      "辅助者,妨碍者,防御,攻击者,水属性",
+      "输出,保护,守护者,治疗者,群体攻击",
+      "输出,妨碍者,治疗者,回复,风属性",
+      "输出,干扰,魔族,风属性,美乳",
+      "输出,爆发力,守护者,火属性,闇属性",
+      "防御,亚人,火属性,守护者,输出",
+      "防御,守护者,人类,攻击者,火属性",
+      "防御,干扰,魔族,风属性,闇属性",
+      "防御,群体攻击,守护者,回复,风属性",
+      "领袖,爆发力,亚人,回复,治疗者",   //新的
+      "风属性,回复,水属性,攻击者,越战越强",
+      "风属性,闇属性,守护者,治疗者,火属性",
+      "魔族,中体型,小体型,水属性,输出",
+      "魔族,亚人,风属性,守护者,生存力",
+      "魔族,人类,输出,妨碍者,中体型",
+      "魔族,保护,闇属性,火属性,美乳",
+      "魔族,妨碍者,水属性,攻击者,生存力",
+      "领袖,攻击者,爆发力,闇属性,治疗者",
+      "巨乳,中体型,攻击者,人类,保护",//下面都是新的
+      "人类,菁英,水属性,亚人,群体攻击",
+      "守护者,爆发力,小体型,中体型,攻击者",
+      "中体型,群体攻击,输出,贫乳,越战越强",
+      "美乳,闇属性,群体攻击,贫乳,妨碍者",
+      "干扰,攻击者,群体攻击,越战越强,守护者",
+      "干扰,小体型,风属性,爆发力,越战越强",
+      "保护,菁英,群体攻击,防御,风属性",
+      "回复,攻击者,魔族,群体攻击,治疗者",
+      "保护,小体型,回复,守护者,亚人",
+      "输出,群体攻击,巨乳,辅助者,美乳",
+      "火属性,巨乳,越战越强,生存力,群体攻击",
+      "妨碍者,领袖,魔族,输出,火属性",
+      "群体攻击,妨碍者,回复,人类,守护者",
+      "保护,光属性,越战越强,干扰,人类",
+      "削弱,士兵,群体攻击,贫乳,光属性",
+      "治疗者,生存力,魔族,输出,防御",
+      "水属性,越战越强,小体型,人类,火属性"
+    ];
 
 //<body style="background:rgb(221, 241, 220)" id="body">
 
-</script>
-<script type="text/javascript" language="javascript" src="transform.js"></script>
+  </script>
+  <script type="text/javascript" language="javascript" src="transform.js"></script>
+
 <body style="background:rgb(230, 230, 255)" id="body">
   <div id="center_box">
-    <h1 style="display: inline;">全境征才计算器 3.7 by 小r</h1><small>邀请码 USHL2U</small> 
+    <h1 style="display: inline;">全境征才计算器 3.7 by 小r</h1><small>邀请码 USHL2U</small>
     <button type="button" id="langSwitcher" class="btn_language" onclick="switchST()">繁简切换</button>
-    <br/>
+    <br />
 
     <button type="button" class='btn_normal btn'>攻击者</button>
     <button type="button" class='btn_normal btn'>守护者</button>
@@ -697,39 +700,41 @@ var propheticWords = ["中体型,亚人,削弱,回击,领袖",
     </table>
 
     <div id="anotation">
-      <font color="red"><h1>新版领袖是橙色的，记得选中！！！拉满9小时！！！</h1></font>
-      我已经收到3起没选领袖的惨案了<br/>
-      3.7 美化<br/>
-      3.6 一些细碎的更新<br/>
-      注意到一些鬼畜用户一行只能显示2个按钮，并不知道原因但是我尝试进行了简单的修复（指缩小按钮间距）<br/>
-      繁简转换按钮<br/>
-      之前是需要3秒内选中3个才会触发连击，感觉有点怪我取消了3秒的条件<br/>
-      繁简切换测试中，可能会有bug<br/>
+      <font color="red">
+        <h1>新版领袖是橙色的，记得选中！！！拉满9小时！！！</h1>
+      </font>
+      我已经收到3起没选领袖的惨案了<br />
+      3.7 美化<br />
+      3.6 一些细碎的更新<br />
+      注意到一些鬼畜用户一行只能显示2个按钮，并不知道原因但是我尝试进行了简单的修复（指缩小按钮间距）<br />
+      繁简转换按钮<br />
+      之前是需要3秒内选中3个才会触发连击，感觉有点怪我取消了3秒的条件<br />
+      繁简切换测试中，可能会有bug<br />
       <h1>3.5 计算器词缀更新中</h1>
-      目前需要 美乳+爆发力，有概率出SR。目前已经出了一个SR了，希望有更多实锤<br/>
-      天使究竟是不是亚人？需要实锤<br/>
-      已确定：<br/>
-      食梦：亚人 削弱 贫乳 爆发力划掉后出了一个，大概率没有爆发力，先去掉了<br/>
-      大天使：支援<br/>
-      血族：爆发力 魔族<br/>
-      托特拉：美乳 削弱 输出  爆发力划掉了2次 越战越强划掉了3次 已经删除越战越强  美乳+爆发力出货1次(概率很低)，先加上爆发力后续再验证<br/>
-      惩戒天使：生存力 没有防御 没有保护<br/>
+      目前需要 美乳+爆发力，有概率出SR。目前已经出了一个SR了，希望有更多实锤<br />
+      天使究竟是不是亚人？需要实锤<br />
+      已确定：<br />
+      食梦：亚人 削弱 贫乳 爆发力划掉后出了一个，大概率没有爆发力，先去掉了<br />
+      大天使：支援<br />
+      血族：爆发力 魔族<br />
+      托特拉：美乳 削弱 输出 爆发力划掉了2次 越战越强划掉了3次 已经删除越战越强 美乳+爆发力出货1次(概率很低)，先加上爆发力后续再验证<br />
+      惩戒天使：生存力 没有防御 没有保护<br />
       <b></b>
-      <h1>3.3 新角色会在29日后加入，以下内容较为重要<br/></h1>
-      (1) 所有角色词条都是玩家猜出来的，更新初期，词条全部未知，试验词条有成本，请自愿参加或等待。<br/>
+      <h1>3.3 新角色会在29日后加入，以下内容较为重要<br /></h1>
+      (1) 所有角色词条都是玩家猜出来的，更新初期，词条全部未知，试验词条有成本，请自愿参加或等待。<br />
       (2) 我已经提前加入了词条。这些词条是我猜的，所以以问号标记，如果你选了该词条出货了，
-      请于天下布魔ma吧贴吧专楼反馈，我会把问号去掉，如果没出货，我会把词条去掉（被划掉的，需要有很多的人被划掉才能确认是真的没有）<br/>
-      最好给出出货前和出货截图<br/>
-      (3) 对于SSR SR 我都尽量猜了大量词条，如果你觉得我还有没加的，同样反馈给我<br/>
-      对于R卡，我不加入任何不确定的词条，以免污染了SR的必出词条。如果你出货了新R卡，且这个词条网页没有标记，也请反馈给我<br/>
-      (4) 因为已经有国内站点了，且接下来更新极快，离线版短期内不会更新<br/>
+      请于天下布魔ma吧贴吧专楼反馈，我会把问号去掉，如果没出货，我会把词条去掉（被划掉的，需要有很多的人被划掉才能确认是真的没有）<br />
+      最好给出出货前和出货截图<br />
+      (3) 对于SSR SR 我都尽量猜了大量词条，如果你觉得我还有没加的，同样反馈给我<br />
+      对于R卡，我不加入任何不确定的词条，以免污染了SR的必出词条。如果你出货了新R卡，且这个词条网页没有标记，也请反馈给我<br />
+      (4) 因为已经有国内站点了，且接下来更新极快，离线版短期内不会更新<br />
 
-      对于无法翻墙的玩家 提供了一个国内地址，需要的记得保存 <a href="http://47.99.93.37/">http://47.99.93.37/</a><br/>
-    <br/>
+      对于无法翻墙的玩家 提供了一个国内地址，需要的记得保存 <a href="http://47.99.93.37/">http://47.99.93.37/</a><br />
+      <br />
 
-      其他更新：为不同版本的主页背景更换了不同的颜色,微调词缀位置<br/>
-      3.2 由喵汇报 为剑圣添加了美乳-越战越强词条<br/>
-      之前的<a href="https://github.com/RShock/RShock.github.io/blob/master/update.md">更新日志</a><br/>
+      其他更新：为不同版本的主页背景更换了不同的颜色,微调词缀位置<br />
+      3.2 由喵汇报 为剑圣添加了美乳-越战越强词条<br />
+      之前的<a href="https://github.com/RShock/RShock.github.io/blob/master/update.md">更新日志</a><br />
       最好的游戏攻略 公益类初始号 代充 尽在<a href="http://tenkafuma.gamekee.com/">天下布魔中文维基wiki(已倒闭)</a>
     </div>
     <div hidden>如你所见本页面没有任何加密，因此请勿随意盗用本页面</div>
