@@ -346,9 +346,9 @@
 
     function isContain(arr1, arr2) {
       if (arr2.length == 0) return false;
-      var isLV3 = arr2.includes("领袖");
+      var isLV3 = arr2.includes("领袖") || arr1.includes("領袖");
       var isLV2 = arr2.includes("菁英");
-      if (!isLV3 && arr1.includes("领袖")) {
+      if (!isLV3 && (arr1.includes("领袖") || arr1.includes("領袖"))){
         return false;
       }
       return prefixIncludes(arr1, arr2);
