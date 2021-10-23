@@ -364,7 +364,7 @@
       var minLV = data[data.length - 1].value[0].substr(0, 1);
       var maxLV = data[0].value[0].substr(0, 1);
       var tagCount = data[0].tags.length;
-      return minLV + maxLV + (100 - data.length) + (10 - tagCount);
+      return maxLV + (100 - data.length) + (100 - tagCount);
     }
 
     function initDataSet() {
