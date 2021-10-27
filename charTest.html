@@ -1,0 +1,83 @@
+<html>
+
+<head>
+    <style>
+        .chara_block {
+            display: inline-block;
+            text-align: center;
+            position: relative;
+            /* border:1px solid lightgray;
+            border-radius: 10px; */
+        }
+
+        .chara_head {
+            width: 48px;
+            height: 48px;
+            border: 7px transparent solid;
+            background-clip: padding-box;
+            /* box-shadow: 0 3px 9px black, inset 0 0 9px white; */
+        }
+
+        .ssr {
+            border-image: linear-gradient(30deg, cyan, yellow, magenta) 1 5;
+            color: rgb(170, 170, 0);
+        }
+
+        .sr {
+            border-image: magenta 1 7;
+            color: magenta;            
+        }
+
+        .rn {
+            border-image: gray 1 7;
+            color: gray;
+        }
+
+        .pending {
+            position:absolute;
+            z-index:2;
+            left:24px; top:0px;
+            font-size: 48px;
+            color: white;
+        }
+
+        .box{
+            display: flex;
+            display: -webkit-flex; /* Safari */
+        }
+
+        .main_info{
+            flex-direction: row;
+        }
+
+        .big_img{
+            flex-direction: row;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="chara_block">
+        <img class="chara_head ssr" src="/img/char_small_101.png">
+        <div class="pending">?</div>
+        <div class="ssr">魔王 巴尔</div>
+    </div>
+    <div class="chara_block">
+        <img class="chara_head ssr" src="/img/char_small_101.png">
+        <div class="pending">?</div>
+        <div class="ssr">魔王 巴尔</div>
+    </div>
+    <div class="chara_card box">
+        <div class="big_img">
+            <img src="img/char_101.png">
+            <div class="main_info box">
+                <div>魔王 巴尔</div>
+                <div>攻击力 </div>
+                <div>防御力 </div>
+            </div>
+        </div>
+    </div>
+
+</body>
+
+</html>
