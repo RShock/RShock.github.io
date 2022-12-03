@@ -366,14 +366,14 @@
       var maxLV = data[0].value[0].substr(0, 1);
       var tagCount = data[0].tags.length;
       var tmp = 0;
-      if (maxLV==2){
-        for(var i=0;i<data.length;i++){
-          if(data[i].value[0].substr(0,1) == '2')tmp++;
-        }
-      }
-      tmp = 10- data.length + tmp;
-      data.num = maxLV + tmp +(100 - data.length) + (100 - tagCount);
-      return maxLV +tmp +(100 - data.length) + (100 - tagCount);
+      // if (maxLV==2){
+      //   for(var i=0;i<data.length;i++){
+      //     if(data[i].value[0].substr(0,1) == '2')tmp++;
+      //     tmp = 10- data.length + tmp;
+      //     return maxLV +tmp +(100 - data.length) + (100 - tagCount);
+      //   }
+      // }
+      return  maxLV +(100 - data.length) + (100 - tagCount);
     }
 
     function initDataSet() {
