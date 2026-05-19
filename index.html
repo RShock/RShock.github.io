@@ -154,12 +154,18 @@
       for (var i = 0; i < wordBtns.length; i++) {
         wordBtns[i].className = 'btn_normal btn';
         wordBtns[i].onclick = function () {
-          if (this.className == 'btn_normal btn' || this.className == 'btn_hint btn') {
-            this.className = 'btn_clicked btn';
-          } else {
+          var hintBtns = document.getElementsByClassName('btn_hint btn');
+          var changed = false;
+          if (this.className == 'btn_clicked btn') {
             this.className = 'btn_normal btn';
+            changed = true;
+          } else if (hintBtns.length == 0 || this.className == 'btn_hint btn') {
+            this.className = 'btn_clicked btn';
+            changed = true;
           }
-          searchAndShow();
+          if (changed) {
+            searchAndShow();
+          }
         }
       }
     }
@@ -256,10 +262,20 @@
           if (prefixIncludes(sliceWords, tags))
             return true;
         })
-        if (matchWordPair.length == 1 && tags.length >= 3) {
-          for (var i = tags.length; i <= 5; i++) {
-            enableWord(btns, hintBtns, matchWordPair[0][i]);
+        if (matchWordPair.length == 1 && tags.length >= 1) {
+          for (var i = tags.length; i < 5; i++) {
+            var word = matchWordPair[0][i];
+            if (!word) break;
+            tags.push(word);
+            var allBtns = document.querySelectorAll('.btn');
+            for (var j = 0; j < allBtns.length; j++) {
+              if (allBtns[j].innerText == word) {
+                allBtns[j].className = 'btn_clicked btn';
+                break;
+              }
+            }
           }
+          return;
         }
         matchWordPair.forEach(words => hintWord(btns, words[tags.length]));
       }
