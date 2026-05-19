@@ -1,0 +1,6 @@
+{
+  "rewrites": [
+    { "source": "/:path*", "has": [{ "type": "host", "value": "tkfm.online" }], "destination": "/notice.html" },
+    { "source": "/:path*", "has": [{ "type": "host", "value": "www.tkfm.online" }], "destination": "/notice.html" }
+  ]
+}
