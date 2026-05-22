@@ -144,6 +144,7 @@
     var tags = [];  //收集当前选中的tag
     var ans = [];   //收集最后的结果
     var propheticWords = [];  //收集固有词条组合模式用于预测
+    var WORKER_URL = 'https://tag-stats-worker.xufujian123.workers.dev';
     window.onload = function () {
       // 调整屏幕宽度，如果是电脑把字调小一点
       getDevice()
@@ -306,10 +307,34 @@
       searchAndShow();
     }
 
+    /***********************************统计记录代码******************************************/
+    function recordTags(tags) {
+      try {
+        var payload = JSON.stringify({ tags: tags });
+        var xhr = new XMLHttpRequest();
+        xhr.open('POST', WORKER_URL + '/api/record', true);
+        xhr.setRequestHeader('Content-Type', 'application/json');
+        xhr.onload = function () {
+          if (xhr.status !== 200) {
+            console.warn('记录失败:', xhr.responseText);
+          }
+        };
+        xhr.onerror = function () {
+          console.warn('记录请求失败（网络问题）');
+        };
+        xhr.send(payload);
+      } catch (e) {
+        console.warn('记录异常:', e);
+      }
+    }
+
     /***********************************搜索系统代码******************************************/
     function searchAndShow() {
       collectSelectedTags();
       propheticWord(tags);
+      if (tags.length == 5) {
+        recordTags([...tags]);
+      }
       ans = [];
       searchChara([], 0);
       sortAns();

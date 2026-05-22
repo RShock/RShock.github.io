@@ -1,0 +1,8 @@
+name = "tag-stats-worker"
+main = "src/index.js"
+compatibility_date = "2024-12-01"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "tag-stats-db"
+database_id = "f7deab11-96ac-4eca-b84b-ece4325a88b7"
