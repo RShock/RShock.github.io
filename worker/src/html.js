@@ -65,8 +65,6 @@ tr:hover td { background: #f0f7ff; }
 </div>
 
 <script>
-const API = '';
-let currentTab = 'stats';
 let statsPage = 1, detailsPage = 1;
 
 async function fetchJSON(url) {
@@ -77,73 +75,85 @@ async function fetchJSON(url) {
 function renderTags(tagsStr) {
   try {
     const tags = JSON.parse(tagsStr);
-    return tags.map(t => '<span class="tag">' + escapeHtml(t) + '</span>').join('');
-  } catch { return escapeHtml(tagsStr); }
+    return tags.map(function(t) { return '<span class="tag">' + escapeHtml(t) + '</span>'; }).join('');
+  } catch(e) { return escapeHtml(tagsStr); }
 }
 
-function escapeHtml(s) { return (''+s).replace(/[&<>"]/g, function(m) { return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]; }); }
+function escapeHtml(s) { return (''+s).replace(/[&<>"]/g, function(m) { return { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;' }[m]; }); }
 
 async function loadStats() {
-  const data = await fetchJSON('/api/stats?page=' + statsPage);
-  const tbody = document.getElementById('stats-body');
+  var data = await fetchJSON('/api/stats?page=' + statsPage);
+  var tbody = document.getElementById('stats-body');
   tbody.innerHTML = '';
-  data.data.forEach((item, i) => {
-    const rank = (statsPage - 1) * data.pageSize + i + 1;
-    const tr = document.createElement('tr');
-    tr.innerHTML = '<td>' + rank + '</td><td class="tag-cell">' + renderTags(item.tags) + '</td><td><span class="freq-badge">' + item.freq + '</span></td><td>' + (item.last_seen || '-') + '</td><td><button onclick="showDetails(\'' + encodeURIComponent(item.tags) + '\')">查看详情</button></td>';
+  for (var i = 0; i < data.data.length; i++) {
+    var item = data.data[i];
+    var rank = (statsPage - 1) * data.pageSize + i + 1;
+    var tr = document.createElement('tr');
+    tr.innerHTML = '<td>' + rank + '</td><td class="tag-cell">' + renderTags(item.tags) + '</td><td><span class="freq-badge">' + item.freq + '</span></td><td>' + (item.last_seen || '-') + '</td><td><button class="detail-btn" data-tags="' + encodeURIComponent(item.tags) + '">查看详情</button></td>';
     tbody.appendChild(tr);
-  });
+  }
   renderPagination('stats-pagination', data.total, data.page, data.pageSize, function(p) { statsPage = p; loadStats(); });
 }
 
 async function loadDetails() {
-  const searchVal = document.getElementById('search-input').value.trim();
-  let url = '/api/details?page=' + detailsPage;
+  var searchVal = document.getElementById('search-input').value.trim();
+  var url = '/api/details?page=' + detailsPage;
   if (searchVal) {
-    const tags = searchVal.split(/[,，]/).map(s => s.trim()).filter(Boolean);
+    var tags = searchVal.split(/[,，]/).map(function(s) { return s.trim(); }).filter(function(s) { return s; });
     if (tags.length) url += '&tags=' + encodeURIComponent(JSON.stringify(tags));
   }
-  const data = await fetchJSON(url);
-  const tbody = document.getElementById('details-body');
+  var data = await fetchJSON(url);
+  var tbody = document.getElementById('details-body');
   tbody.innerHTML = '';
-  data.data.forEach(item => {
-    const tr = document.createElement('tr');
+  for (var j = 0; j < data.data.length; j++) {
+    var item = data.data[j];
+    var tr = document.createElement('tr');
     tr.innerHTML = '<td>' + item.id + '</td><td class="tag-cell">' + renderTags(item.tags_original || item.tags) + '</td><td class="time-cell">' + item.created_at + '</td>';
     tbody.appendChild(tr);
-  });
+  }
   renderPagination('details-pagination', data.total, data.page, data.pageSize, function(p) { detailsPage = p; loadDetails(); });
 }
 
 function renderPagination(id, total, page, pageSize, onChange) {
-  const el = document.getElementById(id);
-  const totalPages = Math.ceil(total / pageSize);
+  var el = document.getElementById(id);
+  var totalPages = Math.ceil(total / pageSize);
   if (totalPages <= 1) { el.innerHTML = ''; return; }
-  el.innerHTML = '<button onclick="changePage(\'' + id + '\', ' + (page-1) + ')" ' + (page<=1?'disabled':'') + '>上一页</button><span>第 ' + page + ' / ' + totalPages + ' 页（共 ' + total + ' 条）</span><button onclick="changePage(\'' + id + '\', ' + (page+1) + ')" ' + (page>=totalPages?'disabled':'') + '>下一页</button>';
-  window._pageCallbacks = window._pageCallbacks || {};
-  window._pageCallbacks[id] = onChange;
+  el.innerHTML = '<button class="page-btn" data-page="' + (page - 1) + '" data-target="' + id + '">上一页</button><span>第 ' + page + ' / ' + totalPages + ' 页（共 ' + total + ' 条）</span><button class="page-btn" data-page="' + (page + 1) + '" data-target="' + id + '">下一页</button>';
+  var callbacks = {};
+  callbacks[id] = onChange;
+  window._pageCallbacks = callbacks;
 }
-function changePage(id, p) { if (window._pageCallbacks[id]) window._pageCallbacks[id](p); }
+
+document.addEventListener('click', function(e) {
+  if (e.target.classList.contains('detail-btn')) {
+    var tagsStr = decodeURIComponent(e.target.getAttribute('data-tags'));
+    document.getElementById('search-input').value = tagsStr;
+    switchTab('details');
+  }
+  if (e.target.classList.contains('page-btn')) {
+    var page = parseInt(e.target.getAttribute('data-page'));
+    var target = e.target.getAttribute('data-target');
+    if (window._pageCallbacks && window._pageCallbacks[target]) {
+      window._pageCallbacks[target](page);
+    }
+  }
+});
 
 async function loadSummary() {
-  const data = await fetchJSON('/api/stats?page=1&pageSize=1');
-  const totalRes = await fetchJSON('/api/details?page=1&pageSize=1');
+  var data = await fetchJSON('/api/stats?page=1&pageSize=1');
+  var totalRes = await fetchJSON('/api/details?page=1&pageSize=1');
   document.getElementById('total-records').textContent = totalRes.total;
   document.getElementById('unique-combos').textContent = data.total;
 }
 
 function switchTab(tab) {
-  currentTab = tab;
-  document.querySelectorAll('.tabs button').forEach(b => b.classList.remove('active'));
-  document.querySelector('.tabs button:nth-child(' + (tab==='stats'?1:2) + ')').classList.add('active');
+  var btns = document.querySelectorAll('.tabs button');
+  for (var k = 0; k < btns.length; k++) { btns[k].classList.remove('active'); }
+  if (tab === 'stats') { btns[0].classList.add('active'); } else { btns[1].classList.add('active'); }
   document.getElementById('stats-view').style.display = tab === 'stats' ? '' : 'none';
   document.getElementById('details-view').style.display = tab === 'details' ? '' : 'none';
   document.getElementById('search-box').style.display = tab === 'details' ? '' : 'none';
   if (tab === 'details') loadDetails();
-}
-
-function showDetails(tagsStr) {
-  document.getElementById('search-input').value = decodeURIComponent(tagsStr);
-  switchTab('details');
 }
 
 function onSearch() {

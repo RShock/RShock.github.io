@@ -1,4 +1,4 @@
-import { corsHeaders, handleOptions } from './cors';
+import { corsHeaders, jsonResponse, handleOptions } from './cors';
 import STATS_HTML from './html';
 
 export default {
@@ -26,9 +26,9 @@ export default {
       if (path === '/api/details' && request.method === 'GET') {
         return await handleDetails(request, env);
       }
-      return new Response('Not Found', { status: 404, headers: corsHeaders() });
+      return jsonResponse({ error: 'Not Found' }, 404);
     } catch (err) {
-      return new Response(err.message, { status: 500, headers: corsHeaders() });
+      return jsonResponse({ error: err.message }, 500);
     }
   }
 };
@@ -38,10 +38,7 @@ async function handleRecord(request, env) {
   const { tags } = body;
 
   if (!Array.isArray(tags) || tags.length !== 5) {
-    return new Response(JSON.stringify({ error: '需要恰好5个词条' }), {
-      status: 400,
-      headers: corsHeaders()
-    });
+    return jsonResponse({ error: '需要恰好5个词条' }, 400);
   }
 
   const tagsStr = JSON.stringify(tags);
@@ -54,10 +51,7 @@ async function handleRecord(request, env) {
     'INSERT INTO tag_records (tags, tags_original, created_at) VALUES (?, ?, ?)'
   ).bind(tagsSortedStr, tagsStr, now).run();
 
-  return new Response(JSON.stringify({ success: true }), {
-    status: 200,
-    headers: corsHeaders()
-  });
+  return jsonResponse({ success: true });
 }
 
 async function handleStats(request, env) {
@@ -83,14 +77,11 @@ async function handleStats(request, env) {
     countStmt.first()
   ]);
 
-  return new Response(JSON.stringify({
+  return jsonResponse({
     data: result.results,
     total: countResult.total,
     page,
     pageSize
-  }), {
-    status: 200,
-    headers: corsHeaders()
   });
 }
 
@@ -134,13 +125,10 @@ async function handleDetails(request, env) {
     countStmt.first()
   ]);
 
-  return new Response(JSON.stringify({
+  return jsonResponse({
     data: result.results,
     total: countResult.total,
     page,
     pageSize
-  }), {
-    status: 200,
-    headers: corsHeaders()
   });
 }
