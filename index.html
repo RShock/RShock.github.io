@@ -235,6 +235,7 @@
   <script type="text/javascript">
 
     var tags = [];  //收集当前选中的tag
+    var tagOrder = []; //按点击顺序记录选中的tag
     var ans = [];   //收集最后的结果
     var propheticWords = [];  //收集固有词条组合模式用于预测
     var WORKER_URL = 'https://tag-stats-worker.xufujian123.workers.dev';
@@ -254,6 +255,9 @@
           var changed = false;
           if (this.className == 'btn_clicked btn') {
             this.className = 'btn_normal btn';
+            // 按点击顺序记录：移除取消点击的tag
+            var idx = tagOrder.indexOf(this.innerText);
+            if (idx > -1) tagOrder.splice(idx, 1);
             changed = true;
           } else if ((hintBtns.length == 0 && greenHintBtns.length == 0) || this.className == 'btn_hint btn' || this.className == 'btn_hint_green btn') {
             if (this.className == 'btn_hint_green btn') {
@@ -263,6 +267,8 @@
               prophecyTriggered = true;
             }
             this.className = 'btn_clicked btn';
+            // 按点击顺序记录
+            tagOrder.push(this.innerText);
             changed = true;
           }
           if (changed) {
@@ -429,8 +435,8 @@
     var prophecyVersion = 'new';         // 'new'=新版(绿色提示), 'old'=原版(无绿色)
     //预言系统 基于交互设计理念 为用户自动补全
     function propheticWord(tags) {
-      btns = document.getElementsByClassName('btn_normal btn');
-      hintBtns = document.getElementsByClassName('btn_hint btn');
+      var btns = document.getElementsByClassName('btn_normal btn');
+      var hintBtns = document.getElementsByClassName('btn_hint btn');
       while (hintBtns.length != 0) {
         hintBtns[0].className = 'btn_normal btn';
       }
@@ -440,7 +446,7 @@
         greenHints[0].className = 'btn_normal btn';
       }
       if (tags.length <= 4 && tags.length >= 1) {
-        matchWordPair = propheticWords.filter(words => {
+        var matchWordPair = propheticWords.filter(words => {
           var sliceWords = words.slice(0, tags.length);
           if (prefixIncludes(sliceWords, tags))
             return true;
@@ -455,6 +461,7 @@
               var word = matchWordPair[0][i];
               if (!word) break;
               tags.push(word);
+              tagOrder.push(word); // 保持点击顺序一致
               var allBtns = document.querySelectorAll('.btn');
               for (var j = 0; j < allBtns.length; j++) {
                 if (allBtns[j].innerText == word) {
@@ -474,6 +481,7 @@
               var word = matchWordPair[0][i];
               if (!word) break;
               tags.push(word);
+              tagOrder.push(word); // 保持点击顺序一致
               var allBtns = document.querySelectorAll('.btn');
               for (var j = 0; j < allBtns.length; j++) {
                 if (allBtns[j].innerText == word) {
@@ -579,13 +587,7 @@
     }
 
     function collectSelectedTags() {
-      tags = [];
-      var allBtns = document.getElementsByClassName('btn');
-      for (btn of allBtns) {
-        if (btn.className == 'btn_clicked btn') {
-          tags.push(btn.innerHTML);
-        }
-      };
+      tags = tagOrder.slice(); // 按点击顺序复制，而非DOM顺序
     }
 
     function resetAllTags() {
@@ -604,6 +606,7 @@
       }
       tags = [];
       ans = [];
+      tagOrder = [];
       prophecyTriggered = false;
       prophecyShouldComplete = false;
       redrawTable();
