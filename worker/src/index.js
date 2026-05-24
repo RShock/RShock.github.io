@@ -26,6 +26,12 @@ export default {
       if (path === '/api/details' && request.method === 'GET') {
         return await handleDetails(request, env);
       }
+      if (path === '/api/message' && request.method === 'POST') {
+        return await handleMessage(request, env);
+      }
+      if (path === '/api/messages' && request.method === 'GET') {
+        return await handleMessages(request, env);
+      }
       return jsonResponse({ error: 'Not Found' }, 404);
     } catch (err) {
       return jsonResponse({ error: err.message }, 500);
@@ -127,6 +133,52 @@ async function handleDetails(request, env) {
 
   return jsonResponse({
     data: result.results,
+    total: countResult.total,
+    page,
+    pageSize
+  });
+}
+
+async function handleMessage(request, env) {
+  const body = await request.json();
+  const { message } = body;
+
+  if (!message || typeof message !== 'string' || message.trim().length === 0) {
+    return jsonResponse({ error: '留言不能为空' }, 400);
+  }
+  if (message.length > 2000) {
+    return jsonResponse({ error: '留言过长，限制2000字' }, 400);
+  }
+
+  const now = new Date().toISOString().replace('T', ' ').substring(0, 19);
+  await env.DB.prepare(
+    'INSERT INTO messages (message, created_at) VALUES (?, ?)'
+  ).bind(message.trim(), now).run();
+
+  return jsonResponse({ success: true });
+}
+
+async function handleMessages(request, env) {
+  const url = new URL(request.url);
+  const page = parseInt(url.searchParams.get('page')) || 1;
+  const pageSize = 30;
+  const offset = (page - 1) * pageSize;
+
+  const stmt = env.DB.prepare(
+    'SELECT id, message, created_at FROM messages ORDER BY created_at DESC LIMIT ? OFFSET ?'
+  ).bind(pageSize, offset);
+
+  const countStmt = env.DB.prepare(
+    'SELECT COUNT(*) as total FROM messages'
+  );
+
+  const [result, countResult] = await Promise.all([
+    stmt.all(),
+    countStmt.first()
+  ]);
+
+  return jsonResponse({
+    messages: result.results,
     total: countResult.total,
     page,
     pageSize

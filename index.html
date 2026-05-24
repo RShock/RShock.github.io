@@ -53,6 +53,24 @@
       background-position: 0% 45%;
     }
 
+    .btn_hint_green {
+      color: rgb(80, 80, 109);
+      background-image: linear-gradient(rgb(255, 255, 255), rgb(240, 248, 240), 
+      rgb(136, 196, 176), rgb(67, 172, 150));
+      background-size: 100% 300%;
+      animation: normal2hintGreen 0.15s ease 1;
+      background-position: 0% 45%;
+    }
+
+    .btn_clicked_green {
+      color: white;
+      background-image: linear-gradient(rgb(255, 255, 255), rgb(240, 248, 240), 
+      rgb(136, 196, 176), rgb(67, 172, 150));
+      background-size: 100% 300%;
+      animation: blinkGreen 0.3s ease 1;
+      background-position: 0% 95%;
+    }
+
     .btn_clicked {
       color: white;
       background-image: linear-gradient(rgb(255, 255, 255), rgb(240, 240, 240), 
@@ -84,10 +102,85 @@
       }
     }
 
+    @keyframes normal2hintGreen {
+      0% {
+        background-position: 0% 0%;
+      }
+      100% {
+        background-position: 0% 45%;
+      }
+    }
+
+    @keyframes blinkGreen
+    {
+      0% {
+        color: rgb(80, 80, 109);
+        background-position: 0% 66%;
+      }
+      100% {
+        color: white;
+        background-position: 0% 95%;
+      }
+    }
+
     .btn_resetAllTags {
       width: 100%;
       color: white;
       background-color: rgb(236, 91, 85)
+    }
+
+    .intro-text {
+      font-size: 22px;
+      color: rgb(100, 100, 130);
+      margin: 8px 0;
+      line-height: 1.6;
+    }
+
+    .version-toggle {
+      text-decoration: underline;
+      cursor: pointer;
+      color: rgb(74, 163, 209);
+    }
+
+    .version-toggle:hover {
+      color: rgb(67, 172, 150);
+    }
+
+    .message-box {
+      margin-top: 20px;
+      padding: 10px;
+      border: 1px solid #065279;
+      border-radius: 10px;
+    }
+
+    .message-box textarea {
+      width: 100%;
+      height: 60px;
+      font-size: 22px;
+      border-radius: 8px;
+      border: 1px solid #aaa;
+      padding: 5px;
+      resize: vertical;
+    }
+
+    .message-box .btn-submit {
+      margin-top: 5px;
+      font-size: 24px;
+      padding: 6px 20px;
+      border-radius: 8px;
+      background-color: #065279;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+
+    .message-box .btn-view {
+      margin-top: 5px;
+      margin-left: 10px;
+      font-size: 22px;
+      color: #065279;
+      text-decoration: underline;
+      cursor: pointer;
     }
 
     table {
@@ -150,17 +243,25 @@
       getDevice()
       initPropheticWords() //初始化词条预言系统
       initST()
+      initProphecyVersion()
 
       var wordBtns = document.getElementsByClassName('btn_normal btn');
       for (var i = 0; i < wordBtns.length; i++) {
         wordBtns[i].className = 'btn_normal btn';
         wordBtns[i].onclick = function () {
           var hintBtns = document.getElementsByClassName('btn_hint btn');
+          var greenHintBtns = document.getElementsByClassName('btn_hint_green btn');
           var changed = false;
           if (this.className == 'btn_clicked btn') {
             this.className = 'btn_normal btn';
             changed = true;
-          } else if (hintBtns.length == 0 || this.className == 'btn_hint btn') {
+          } else if ((hintBtns.length == 0 && greenHintBtns.length == 0) || this.className == 'btn_hint btn' || this.className == 'btn_hint_green btn') {
+            if (this.className == 'btn_hint_green btn') {
+              prophecyShouldComplete = true;
+            }
+            if (this.className == 'btn_hint btn' || this.className == 'btn_hint_green btn') {
+              prophecyTriggered = true;
+            }
             this.className = 'btn_clicked btn';
             changed = true;
           }
@@ -185,6 +286,79 @@
         }(),
       };
       return result;
+    }
+
+    /***********************************版本切换相关代码**************************************/
+    function initProphecyVersion() {
+      var ver = localStorage.getItem('prophecyVer');
+      if (ver == 'old') {
+        prophecyVersion = 'old';
+        updateVersionUI();
+      }
+    }
+
+    function switchVersion() {
+      if (prophecyVersion == 'new') {
+        prophecyVersion = 'old';
+        localStorage.setItem('prophecyVer', 'old');
+      } else {
+        prophecyVersion = 'new';
+        localStorage.setItem('prophecyVer', 'new');
+      }
+      updateVersionUI();
+      // 如果当前有选中的标签，重新触发预言提示
+      if (tags.length >= 1 && tags.length <= 4) {
+        propheticWord(tags);
+      }
+    }
+
+    function updateVersionUI() {
+      var intro = document.getElementById('introText');
+      if (prophecyVersion == 'old') {
+        intro.innerHTML = '当前为<span style="font-weight:bold;">原版</span>模式：无绿色提示，永远点击3下才能出结果。<br/>'
+          + '想试试新版的可以<span class="version-toggle" id="versionToggle" onclick="switchVersion()">点击这里</span>切换回新版。';
+      } else {
+        intro.innerHTML = '现在只要按<span style="color:rgb(67,172,150);font-weight:bold;">2下</span>就可以出词条了，但有些特殊情况依然需要按3下。<br/>'
+          + '看到<span style="color:rgb(67,172,150);font-weight:bold;">绿色按钮</span>就说明不需要再按下一个词了。<br/>'
+          + '不适应的可以<span class="version-toggle" id="versionToggle" onclick="switchVersion()">点击这里</span>切换回原版。';
+      }
+    }
+
+    /***********************************留言箱相关代码**************************************/
+    function submitMessage() {
+      var msgInput = document.getElementById('msgInput');
+      var msgStatus = document.getElementById('msgStatus');
+      var msg = msgInput.value.trim();
+      if (!msg) {
+        msgStatus.style.color = 'red';
+        msgStatus.innerText = '留言不能为空';
+        return;
+      }
+      msgStatus.style.color = 'gray';
+      msgStatus.innerText = '提交中...';
+      try {
+        var xhr = new XMLHttpRequest();
+        xhr.open('POST', WORKER_URL + '/api/message', true);
+        xhr.setRequestHeader('Content-Type', 'application/json');
+        xhr.onload = function () {
+          if (xhr.status == 200) {
+            msgStatus.style.color = 'green';
+            msgStatus.innerText = '留言提交成功！';
+            msgInput.value = '';
+          } else {
+            msgStatus.style.color = 'red';
+            msgStatus.innerText = '提交失败: ' + xhr.responseText;
+          }
+        };
+        xhr.onerror = function () {
+          msgStatus.style.color = 'red';
+          msgStatus.innerText = '提交失败（网络问题）';
+        };
+        xhr.send(JSON.stringify({ message: msg }));
+      } catch (e) {
+        msgStatus.style.color = 'red';
+        msgStatus.innerText = '提交异常: ' + e;
+      }
     }
 
     function initPropheticWords() {
@@ -250,6 +424,9 @@
 
     /***********************************预言系统代码******************************************/
     var time = 0;
+    var prophecyShouldComplete = false;  // 点击绿色提示后触发自动补全
+    var prophecyTriggered = false;       // 标记当前5标签是否由预言系统触发
+    var prophecyVersion = 'new';         // 'new'=新版(绿色提示), 'old'=原版(无绿色)
     //预言系统 基于交互设计理念 为用户自动补全
     function propheticWord(tags) {
       btns = document.getElementsByClassName('btn_normal btn');
@@ -257,28 +434,75 @@
       while (hintBtns.length != 0) {
         hintBtns[0].className = 'btn_normal btn';
       }
+      // 清除绿色提示
+      var greenHints = document.getElementsByClassName('btn_hint_green btn');
+      while (greenHints.length != 0) {
+        greenHints[0].className = 'btn_normal btn';
+      }
       if (tags.length <= 4 && tags.length >= 1) {
         matchWordPair = propheticWords.filter(words => {
           var sliceWords = words.slice(0, tags.length);
           if (prefixIncludes(sliceWords, tags))
             return true;
         })
-        if (matchWordPair.length == 1 && tags.length >= 1) {
-          for (var i = tags.length; i < 5; i++) {
-            var word = matchWordPair[0][i];
-            if (!word) break;
-            tags.push(word);
-            var allBtns = document.querySelectorAll('.btn');
-            for (var j = 0; j < allBtns.length; j++) {
-              if (allBtns[j].innerText == word) {
-                allBtns[j].className = 'btn_clicked btn';
-                break;
+        if (matchWordPair.length == 0) return;
+
+        // 如果点击了绿色提示按钮，自动补全所有剩余标签（新版专用）
+        if (prophecyShouldComplete) {
+          prophecyShouldComplete = false;
+          if (matchWordPair.length >= 1) {
+            for (var i = tags.length; i < 5; i++) {
+              var word = matchWordPair[0][i];
+              if (!word) break;
+              tags.push(word);
+              var allBtns = document.querySelectorAll('.btn');
+              for (var j = 0; j < allBtns.length; j++) {
+                if (allBtns[j].innerText == word) {
+                  allBtns[j].className = 'btn_clicked btn';
+                  break;
+                }
               }
             }
           }
           return;
         }
-        matchWordPair.forEach(words => hintWord(btns, words[tags.length]));
+
+        // 原版模式：只有蓝色提示，至少点3下，只剩一个匹配时自动补全
+        if (prophecyVersion == 'old') {
+          if (matchWordPair.length == 1 && tags.length >= 3) {
+            for (var i = tags.length; i < 5; i++) {
+              var word = matchWordPair[0][i];
+              if (!word) break;
+              tags.push(word);
+              var allBtns = document.querySelectorAll('.btn');
+              for (var j = 0; j < allBtns.length; j++) {
+                if (allBtns[j].innerText == word) {
+                  allBtns[j].className = 'btn_clicked btn';
+                  break;
+                }
+              }
+            }
+            return;
+          }
+          matchWordPair.forEach(words => hintWord(btns, words[tags.length]));
+          return;
+        }
+
+        // 新版模式：统计每个候选下一个词的出现次数
+        var nextWordCounts = {};
+        matchWordPair.forEach(function(words) {
+          var nw = words[tags.length];
+          if (nw) nextWordCounts[nw] = (nextWordCounts[nw] || 0) + 1;
+        });
+
+        // count==1为绿色（点击后唯一确定），count>1为蓝色
+        for (var word in nextWordCounts) {
+          if (nextWordCounts[word] == 1) {
+            hintWordGreen(btns, word);
+          } else {
+            hintWord(btns, word);
+          }
+        }
       }
     }
 
@@ -286,6 +510,15 @@
       for (var i = 0; i < btns.length; i++) {
         if (btns[i].innerText == word) {
           btns[i].className = 'btn_hint btn';
+          break;
+        }
+      }
+    }
+
+    function hintWordGreen(btns, word) {
+      for (var i = 0; i < btns.length; i++) {
+        if (btns[i].innerText == word) {
+          btns[i].className = 'btn_hint_green btn';
           break;
         }
       }
@@ -310,7 +543,9 @@
     /***********************************统计记录代码******************************************/
     function recordTags(tags) {
       try {
-        var payload = JSON.stringify({ tags: tags });
+        // 统一转为简体中文再上传，确保繁简用户数据正确合并
+        var normalizedTags = tags.map(function(t) { return t.t2s ? t.t2s() : t; });
+        var payload = JSON.stringify({ tags: normalizedTags });
         var xhr = new XMLHttpRequest();
         xhr.open('POST', WORKER_URL + '/api/record', true);
         xhr.setRequestHeader('Content-Type', 'application/json');
@@ -332,8 +567,9 @@
     function searchAndShow() {
       collectSelectedTags();
       propheticWord(tags);
-      if (tags.length == 5) {
+      if (tags.length == 5 && prophecyTriggered) {
         recordTags([...tags]);
+        prophecyTriggered = false;
       }
       ans = [];
       searchChara([], 0);
@@ -356,14 +592,20 @@
       console.log('resetAllTags');
       var arr = document.getElementsByClassName('btn_clicked btn');
       var arr2 = document.getElementsByClassName('btn_hint btn');
+      var arr3 = document.getElementsByClassName('btn_hint_green btn');
       while (arr.length != 0) {
         arr[0].className = 'btn_normal btn';
       }
       while (arr2.length != 0) {
         arr2[0].className = 'btn_normal btn';
       }
+      while (arr3.length != 0) {
+        arr3[0].className = 'btn_normal btn';
+      }
       tags = [];
       ans = [];
+      prophecyTriggered = false;
+      prophecyShouldComplete = false;
       redrawTable();
     }
 
@@ -829,6 +1071,19 @@
     <div class="invite-code">      
       游戏登不上去的，可以购买此VPN：<a href="https://lanpangyun.one/#/register?code=6jUoWPvh">点击这里</a><br/>
       10块钱一个月，亲测稳定可用，台湾节点可进游戏
+    </div>
+
+    <div class="intro-text" id="introText">
+      现在只要按<span style="color:rgb(67,172,150);font-weight:bold;">2下</span>就可以出词条了，但有些特殊情况依然需要按3下。<br/>
+      看到<span style="color:rgb(67,172,150);font-weight:bold;">绿色按钮</span>就说明不需要再按下一个词了。<br/>
+      不适应的可以<span class="version-toggle" id="versionToggle" onclick="switchVersion()">点击这里</span>切换回原版。
+    </div>
+
+    <div class="message-box">
+      <div style="font-size:24px;font-weight:bold;margin-bottom:5px;">留言箱</div>
+      <textarea id="msgInput" placeholder="在这里写下你的留言..."></textarea><br/>
+      <button type="button" class="btn-submit" onclick="submitMessage()">提交留言</button>
+      <div id="msgStatus" style="font-size:18px;color:green;margin-top:3px;"></div>
     </div>
 
    </div>

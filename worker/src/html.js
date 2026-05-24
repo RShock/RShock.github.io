@@ -45,6 +45,7 @@ tr:hover td { background: #f0f7ff; }
 <div class="tabs">
   <button class="active" onclick="switchTab('stats')">频率排名</button>
   <button onclick="switchTab('details')">详细记录</button>
+  <button onclick="switchTab('messages')">留言</button>
 </div>
 <div class="search-box" id="search-box" style="display:none">
   <input type="text" id="search-input" placeholder="输入词条筛选（如: 攻击者,火属性）" oninput="onSearch()">
@@ -63,9 +64,16 @@ tr:hover td { background: #f0f7ff; }
   </table>
   <div class="pagination" id="details-pagination"></div>
 </div>
+<div id="messages-view" style="display:none">
+  <table>
+    <thead><tr><th>ID</th><th>留言内容</th><th>时间</th></tr></thead>
+    <tbody id="messages-body"></tbody>
+  </table>
+  <div class="pagination" id="messages-pagination"></div>
+</div>
 
 <script>
-let statsPage = 1, detailsPage = 1;
+let statsPage = 1, detailsPage = 1, messagesPage = 1;
 
 async function fetchJSON(url) {
   const res = await fetch(url);
@@ -149,16 +157,38 @@ async function loadSummary() {
 function switchTab(tab) {
   var btns = document.querySelectorAll('.tabs button');
   for (var k = 0; k < btns.length; k++) { btns[k].classList.remove('active'); }
-  if (tab === 'stats') { btns[0].classList.add('active'); } else { btns[1].classList.add('active'); }
+  if (tab === 'stats') { btns[0].classList.add('active'); }
+  else if (tab === 'details') { btns[1].classList.add('active'); }
+  else if (tab === 'messages') { btns[2].classList.add('active'); }
   document.getElementById('stats-view').style.display = tab === 'stats' ? '' : 'none';
   document.getElementById('details-view').style.display = tab === 'details' ? '' : 'none';
+  document.getElementById('messages-view').style.display = tab === 'messages' ? '' : 'none';
   document.getElementById('search-box').style.display = tab === 'details' ? '' : 'none';
   if (tab === 'details') loadDetails();
+  if (tab === 'messages') loadMessages();
 }
 
 function onSearch() {
   detailsPage = 1;
   loadDetails();
+}
+
+async function loadMessages() {
+  var data = await fetchJSON('/api/messages?page=' + messagesPage);
+  var tbody = document.getElementById('messages-body');
+  tbody.innerHTML = '';
+  if (!data.messages || data.messages.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="3" style="text-align:center;color:#999;">暂无留言</td></tr>';
+    document.getElementById('messages-pagination').innerHTML = '';
+    return;
+  }
+  for (var j = 0; j < data.messages.length; j++) {
+    var m = data.messages[j];
+    var tr = document.createElement('tr');
+    tr.innerHTML = '<td>' + m.id + '</td><td style="max-width:400px;word-break:break-all;">' + escapeHtml(m.message) + '</td><td class="time-cell">' + (m.created_at || '-') + '</td>';
+    tbody.appendChild(tr);
+  }
+  renderPagination('messages-pagination', data.total, data.page, data.pageSize, function(p) { messagesPage = p; loadMessages(); });
 }
 
 loadSummary();
