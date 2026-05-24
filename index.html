@@ -676,7 +676,11 @@
     }
 
     function prefixIncludes(arr1, arr2) {
-      return arr2.filter(item2 => arr1.find(item1 => item1.startsWith(item2))).length == arr2.length;
+      // 按位置严格匹配，防止顺序不同导致的错误分支跳转
+      for (var k = 0; k < arr2.length; k++) {
+        if (!arr1[k].startsWith(arr2[k])) return false;
+      }
+      return true;
     }
 
     function lockCharaClick(charaName) {
@@ -885,11 +889,9 @@
       "干扰,光属性,治疗者,生存力,闇属性",
       "干扰,妨碍者,支援,小体型,守护者",
       "干扰,巨乳,闇属性,风属性,群体攻击",
-      "干扰,巨乳,魔族,贫乳,群体攻击",
       "支援,治疗者,妨碍者,小体型,辅助者",
       "攻击者,保护,爆发力,小体型,输出",
       "攻击者,干扰,守护者,防御,光属性",
-      "干扰,攻击者,守护者,防御,光属性",
       "攻击者,生存力,越战越强,守护者,小体型",
       "攻击者,防御,治疗者,群体攻击,输出",
       "攻击者,魔族,人类,中体型,干扰",
