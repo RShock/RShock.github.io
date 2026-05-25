@@ -123,6 +123,21 @@
       }
     }
 
+    /* 自动补全动画：分2组播放，每组0.2秒，共0.4秒 */
+    @keyframes autoCompleteHint {
+      0% { background-position: 0% 0%; }
+      100% { background-position: 0% 45%; color: rgb(80, 80, 109); }
+    }
+
+    .btn_autocomplete {
+      color: rgb(80, 80, 109);
+      background-image: linear-gradient(rgb(255, 255, 255), rgb(240, 240, 240), 
+        rgb(151, 191, 211), rgb(74, 163, 209));
+      background-size: 100% 300%;
+      animation: autoCompleteHint 0.2s ease 1;
+      background-position: 0% 45%;
+    }
+
     .btn_resetAllTags {
       width: 100%;
       color: white;
@@ -259,7 +274,19 @@
             var idx = tagOrder.indexOf(this.innerText);
             if (idx > -1) tagOrder.splice(idx, 1);
             changed = true;
-          } else if ((hintBtns.length == 0 && greenHintBtns.length == 0) || this.className == 'btn_hint btn' || this.className == 'btn_hint_green btn') {
+          } else {
+            // 如果当前有提示按钮但用户点击了非提示按钮，进入自由选择模式
+            if ((hintBtns.length > 0 || greenHintBtns.length > 0) &&
+                this.className != 'btn_hint btn' && this.className != 'btn_hint_green btn') {
+              freeMode = true;
+              // 清除所有提示
+              while (hintBtns.length != 0) {
+                hintBtns[0].className = 'btn_normal btn';
+              }
+              while (greenHintBtns.length != 0) {
+                greenHintBtns[0].className = 'btn_normal btn';
+              }
+            }
             if (this.className == 'btn_hint_green btn') {
               prophecyShouldComplete = true;
             }
@@ -433,8 +460,12 @@
     var prophecyShouldComplete = false;  // 点击绿色提示后触发自动补全
     var prophecyTriggered = false;       // 标记当前5标签是否由预言系统触发
     var prophecyVersion = 'new';         // 'new'=新版(绿色提示), 'old'=原版(无绿色)
+    var freeMode = false;                // 自由选择模式：点击非提示按钮后预言/自动补全失效
     //预言系统 基于交互设计理念 为用户自动补全
     function propheticWord(tags) {
+      // 自由选择模式：不显示预言提示，不触发自动补全
+      if (freeMode) return;
+
       var btns = document.getElementsByClassName('btn_normal btn');
       var hintBtns = document.getElementsByClassName('btn_hint btn');
       while (hintBtns.length != 0) {
@@ -457,19 +488,13 @@
         if (prophecyShouldComplete) {
           prophecyShouldComplete = false;
           if (matchWordPair.length >= 1) {
+            var wordsToComplete = [];
             for (var i = tags.length; i < 5; i++) {
               var word = matchWordPair[0][i];
               if (!word) break;
-              tags.push(word);
-              tagOrder.push(word); // 保持点击顺序一致
-              var allBtns = document.querySelectorAll('.btn');
-              for (var j = 0; j < allBtns.length; j++) {
-                if (allBtns[j].innerText == word) {
-                  allBtns[j].className = 'btn_clicked btn';
-                  break;
-                }
-              }
+              wordsToComplete.push(word);
             }
+            animateAutocomplete(wordsToComplete);
           }
           return;
         }
@@ -477,19 +502,13 @@
         // 原版模式：只有蓝色提示，至少点3下，只剩一个匹配时自动补全
         if (prophecyVersion == 'old') {
           if (matchWordPair.length == 1 && tags.length >= 3) {
+            var wordsToComplete = [];
             for (var i = tags.length; i < 5; i++) {
               var word = matchWordPair[0][i];
               if (!word) break;
-              tags.push(word);
-              tagOrder.push(word); // 保持点击顺序一致
-              var allBtns = document.querySelectorAll('.btn');
-              for (var j = 0; j < allBtns.length; j++) {
-                if (allBtns[j].innerText == word) {
-                  allBtns[j].className = 'btn_clicked btn';
-                  break;
-                }
-              }
+              wordsToComplete.push(word);
             }
+            animateAutocomplete(wordsToComplete);
             return;
           }
           matchWordPair.forEach(words => hintWord(btns, words[tags.length]));
@@ -511,6 +530,40 @@
             hintWord(btns, word);
           }
         }
+      }
+    }
+
+    // 自动补全动画：分2组播放，第1组第一个词，第2组剩余词同时播放，每组0.2秒共0.4秒（纯视觉效果）
+    function animateAutocomplete(wordsToComplete) {
+      // 立即更新数据并完成搜索，动画仅作为视觉特效异步播放
+      wordsToComplete.forEach(function(w) {
+        tags.push(w);
+        tagOrder.push(w);
+      });
+      prophecyTriggered = true;
+      finishSearch();
+
+      // 分组：第1组 = 第一个词(0ms)，第2组 = 剩余词(200ms)
+      var groups = [[wordsToComplete[0]], wordsToComplete.slice(1)];
+      var allBtns = document.querySelectorAll('.btn');
+      for (var g = 0; g < groups.length; g++) {
+        if (groups[g].length === 0) continue;
+        (function(groupWords, delay) {
+          setTimeout(function() {
+            groupWords.forEach(function(word) {
+              for (var j = 0; j < allBtns.length; j++) {
+                if (allBtns[j].innerText == word) {
+                  var btn = allBtns[j];
+                  btn.className = 'btn_autocomplete btn';
+                  setTimeout(function() {
+                    btn.className = 'btn_clicked btn';
+                  }, 200);
+                  break;
+                }
+              }
+            });
+          }, delay);
+        })(groups[g], g * 200);
       }
     }
 
@@ -575,6 +628,11 @@
     function searchAndShow() {
       collectSelectedTags();
       propheticWord(tags);
+      finishSearch();
+    }
+
+    function finishSearch() {
+      console.log('finishSearch: tags=', tags, 'tagOrder=', tagOrder, 'freeMode=', freeMode);
       if (tags.length == 5 && prophecyTriggered) {
         recordTags([...tags]);
         prophecyTriggered = false;
@@ -582,8 +640,10 @@
       ans = [];
       searchChara([], 0);
       sortAns();
+      console.log('finishSearch: ans.length=', ans.length);
       redrawTable();
-      document.getElementById("anotation").style.display = "none";
+      var anotationEl = document.getElementById("anotation");
+      if (anotationEl) anotationEl.style.display = "none";
     }
 
     function collectSelectedTags() {
@@ -609,6 +669,7 @@
       tagOrder = [];
       prophecyTriggered = false;
       prophecyShouldComplete = false;
+      freeMode = false;
       redrawTable();
     }
 
@@ -641,11 +702,10 @@
     function isContain(arr1, arr2) {
       if (arr2.length == 0) return false;
       var isLV3 = arr2.includes("领袖") || arr2.includes("領袖");
-      var isLV2 = arr2.includes("菁英");
       if (!isLV3 && (arr1.includes("领袖") || arr1.includes("領袖"))){
         return false;
       }
-      return prefixIncludes(arr1, arr2);
+      return arr2.every(function(tag) { return arr1.includes(tag); });
     }
 
     function sortAns() {
