@@ -1154,6 +1154,33 @@
       <div id="msgStatus" style="font-size:18px;color:green;margin-top:3px;"></div>
     </div>
 
+    <div class="intro-text" id="anniversary-notice" hidden>
+      布魔六周年问卷（2000魔晶）：<a href="https://www.surveycake.com/s/0y2Y4" target="_blank" rel="noopener noreferrer">https://www.surveycake.com/s/0y2Y4</a><br/>
+      虚宝码：HW2026
+    </div>
+    <script>
+      (function () {
+        // 北京时间 2026 年 11 月 9 日 18:00 起不再显示。
+        var expiresAt = Date.parse('2026-11-09T18:00:00+08:00');
+        var expiryTimer;
+
+        function updateNotice() {
+          clearTimeout(expiryTimer);
+          var remaining = expiresAt - Date.now();
+          // 繁简切换会重建页面内容，每次重新获取当前节点。
+          var notice = document.getElementById('anniversary-notice');
+          notice.hidden = remaining <= 0;
+          if (remaining > 0) {
+            expiryTimer = setTimeout(updateNotice, Math.min(remaining, 2147483647));
+          }
+        }
+
+        updateNotice();
+        document.addEventListener('visibilitychange', updateNotice);
+        window.addEventListener('pageshow', updateNotice);
+      })();
+    </script>
+
    </div>
   </div>
 </body>
